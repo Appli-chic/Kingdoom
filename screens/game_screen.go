@@ -2,7 +2,6 @@ package screens
 
 import (
 	"github.com/kingdoom/managers"
-	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -10,14 +9,12 @@ type GameScreen struct {
 	window          *sdl.Window
 	renderer        *sdl.Renderer
 	resourceManager managers.ResourceManager
+	world           World
 }
 
 func NewGameScreen(window *sdl.Window, renderer *sdl.Renderer) *GameScreen {
-	g := &GameScreen{window, renderer, managers.NewResourceManager()}
-
-	g.resourceManager.LoadImage(utils.OUTSIDE2)
-	g.resourceManager.LoadTextureFromImage(utils.PLAIN, g.resourceManager.GetImage(utils.OUTSIDE2), renderer)
-
+	resourceManager := managers.NewResourceManager()
+	g := &GameScreen{window, renderer, resourceManager, NewWorld(&resourceManager, renderer, 50, 50)}
 	return g
 }
 
@@ -33,20 +30,22 @@ func (g *GameScreen) HandleEvents() bool {
 		}
 	}
 
+	g.world.HandleEvents()
+
 	return running
 }
 
 func (g *GameScreen) Update() {
-
+	g.world.Update()
 }
 
 func (g *GameScreen) Render() {
 	width, height := g.window.GetSize()
-	textureInfo := utils.TextureInfo[utils.PLAIN]
-
 	g.renderer.Clear()
 	g.renderer.SetDrawColor(255, 0, 0, 255)
 	g.renderer.FillRect(&sdl.Rect{W: width, H: height})
-	g.renderer.Copy(g.resourceManager.GetTexture(utils.PLAIN), textureInfo.Src, &sdl.Rect{W: textureInfo.Width, H: textureInfo.Height})
+
+	g.world.Render()
+
 	g.renderer.Present()
 }
