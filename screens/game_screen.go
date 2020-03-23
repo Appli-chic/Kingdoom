@@ -14,23 +14,20 @@ type GameScreen struct {
 
 func NewGameScreen(window *sdl.Window, renderer *sdl.Renderer) *GameScreen {
 	resourceManager := managers.NewResourceManager()
-	g := &GameScreen{window, renderer, resourceManager, NewWorld(&resourceManager, renderer, 50, 50)}
+	g := &GameScreen{window, renderer, resourceManager, NewWorld(window, &resourceManager, renderer, 50, 50)}
 	return g
 }
 
-func (g *GameScreen) HandleEvents() bool {
+func (g *GameScreen) HandleEvents(event sdl.Event) bool {
 	running := true
 
-	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-		switch event.(type) {
-		case *sdl.QuitEvent:
-			println("Quit")
-			running = false
-			break
-		}
+	switch event.(type) {
+	case *sdl.QuitEvent:
+		running = false
+		break
 	}
 
-	g.world.HandleEvents()
+	g.world.HandleEvents(event)
 
 	return running
 }
@@ -44,8 +41,6 @@ func (g *GameScreen) Render() {
 	g.renderer.Clear()
 	g.renderer.SetDrawColor(255, 0, 0, 255)
 	g.renderer.FillRect(&sdl.Rect{W: width, H: height})
-
 	g.world.Render()
-
 	g.renderer.Present()
 }

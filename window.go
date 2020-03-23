@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/veandco/go-sdl2/sdl"
-	"github.com/kingdoom/screens"
 	"fmt"
+	"github.com/kingdoom/screens"
+	"github.com/veandco/go-sdl2/sdl"
 	"os"
 )
 
 type Window struct {
-	window  *sdl.Window
+	window   *sdl.Window
 	renderer *sdl.Renderer
-	screen  screens.Screen
+	screen   screens.Screen
 }
 
 func NewWindow() *Window {
@@ -46,7 +46,10 @@ func (w *Window) Show(title string, width int32, height int32) {
 
 	running := true
 	for running {
-		running = w.screen.HandleEvents()
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			running = w.screen.HandleEvents(event)
+		}
+
 		w.screen.Update()
 		w.screen.Render()
 	}
