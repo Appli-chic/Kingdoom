@@ -2,6 +2,7 @@ package screens
 
 import (
 	"fmt"
+	"github.com/kingdoom/entities"
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
@@ -15,6 +16,7 @@ type World struct {
 	renderer        *sdl.Renderer
 	mapArray        [][]int
 	camera          *sdl.Rect
+	player          *entities.Player
 }
 
 func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, renderer *sdl.Renderer, width int, height int) World {
@@ -25,7 +27,13 @@ func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, ren
 	}
 
 	windowWidth, windowHeight := window.GetSize()
-	w := World{resourceManager, renderer, matrix, &sdl.Rect{W: windowWidth, H: windowHeight}}
+	w := World{
+		resourceManager,
+		renderer,
+		matrix,
+		&sdl.Rect{W: windowWidth, H: windowHeight},
+		entities.NewPlayer(renderer, resourceManager, utils.CharacterTextureInfo[utils.ACTOR1], 50, 50),
+	}
 	w.initMap()
 
 	w.resourceManager.LoadTexture(utils.OUTSIDE2, renderer)
@@ -41,18 +49,12 @@ func (w *World) initMap() {
 }
 
 func (w *World) HandleEvents(event sdl.Event) bool {
-
 	switch t := event.(type) {
-	case *sdl.KeyboardEvent:
-		switch t.Keysym.Sym {
-		case sdl.K_UP:
-			w.camera.Y += 5
-		case sdl.K_DOWN:
-			w.camera.Y -= 5
-		case sdl.K_LEFT:
-			w.camera.X += 5
-		case sdl.K_RIGHT:
-			w.camera.X -= 5
+	case *sdl.MouseButtonEvent:
+		if t.State != sdl.PRESSED {
+			if t.Button == sdl.BUTTON_LEFT {
+				w.player.OnClickToMove(t, w.camera)
+			}
 		}
 	}
 
@@ -60,19 +62,36 @@ func (w *World) HandleEvents(event sdl.Event) bool {
 }
 
 func (w *World) Update() {
+	w.player.Update()
+	w.centerCamera()
+}
 
+func (w *World) centerCamera() {
+	w.camera.X = w.player.Pos.X + w.player.CharacterInfo.Width/2 - w.camera.W/2
+	w.camera.Y = w.player.Pos.Y + w.player.CharacterInfo.Height/2 - w.camera.H/2
 }
 
 func (w *World) Render() {
-	plainInfo := utils.TextureInfo[utils.PLAIN]
+	plainInfo := utils.GroundTextureInfo[utils.PLAIN]
 
 	for i := 0; i < len(w.mapArray); i++ {
 		for j := 0; j < len(w.mapArray[0]); j++ {
-			err := w.renderer.Copy(w.resourceManager.GetTexture(plainInfo.ImageKey), plainInfo.Src, &sdl.Rect{X: int32(TileSize * i) + w.camera.X, Y: int32(TileSize * j) + w.camera.Y, W: plainInfo.Width, H: plainInfo.Height})
+			err := w.renderer.Copy(
+				w.resourceManager.GetTexture(plainInfo.ImageKey),
+				plainInfo.Src,
+				&sdl.Rect{
+					X: int32(TileSize*i) - w.camera.X,
+					Y: int32(TileSize*j) - w.camera.Y,
+					W: plainInfo.Width,
+					H: plainInfo.Height,
+				},
+			)
 
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Failed to copy: %s\n", err)
 			}
 		}
 	}
+
+	w.player.Render(w.camera)
 }

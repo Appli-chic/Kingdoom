@@ -44,13 +44,34 @@ func (w *Window) Show(title string, width int32, height int32) {
 	w.renderer = renderer
 	w.screen = screens.NewGameScreen(window, renderer)
 
+	var fps uint32
+	fps = 60
+	var delay uint32
+	delay = 1000 / fps
+
 	running := true
 	for running {
+		frameStart := sdl.GetTicks()
+
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			running = w.screen.HandleEvents(event)
+			switch event.(type) {
+			case *sdl.QuitEvent:
+				running = false
+				break
+			}
+
+			if running {
+				running = w.screen.HandleEvents(event)
+			}
 		}
 
 		w.screen.Update()
 		w.screen.Render()
+
+		var frameTime uint32
+		frameTime = sdl.GetTicks() - frameStart
+		if frameTime < delay {
+			sdl.Delay(delay - frameTime)
+		}
 	}
 }

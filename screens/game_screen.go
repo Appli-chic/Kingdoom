@@ -2,6 +2,7 @@ package screens
 
 import (
 	"github.com/kingdoom/managers"
+	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -14,18 +15,21 @@ type GameScreen struct {
 
 func NewGameScreen(window *sdl.Window, renderer *sdl.Renderer) *GameScreen {
 	resourceManager := managers.NewResourceManager()
-	g := &GameScreen{window, renderer, resourceManager, NewWorld(window, &resourceManager, renderer, 50, 50)}
+	g := &GameScreen{
+		window,
+		renderer,
+		resourceManager,
+		NewWorld(window, &resourceManager, renderer, 50, 50),
+	}
+
+	// Load players textures
+	g.resourceManager.LoadTexture(utils.IMG_ACTOR1, renderer)
+
 	return g
 }
 
 func (g *GameScreen) HandleEvents(event sdl.Event) bool {
 	running := true
-
-	switch event.(type) {
-	case *sdl.QuitEvent:
-		running = false
-		break
-	}
 
 	g.world.HandleEvents(event)
 

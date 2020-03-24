@@ -5,21 +5,40 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+// Image keys
 const (
-	OUTSIDE1 int  = 0
-	OUTSIDE2 int  = 1
+	// Ground
+	OUTSIDE1 int = 0
+	OUTSIDE2 int = 1
+
+	// Characters
+	IMG_ACTOR1 int = 1000
 )
 
+// Ground texture keys
 const (
-	PLAIN int  = 0
-	SAND int = 20
+	PLAIN int = 0
+	SAND  int = 20
+)
+
+// Character texture keys
+const (
+	ACTOR1 int = 1000
 )
 
 var ImagesPath = map[int]string{
+	// Ground
 	OUTSIDE2: "assets/tileset/outside2.png",
+
+	// Characters
+	IMG_ACTOR1: "assets/character/actor1.png",
 }
 
-var TextureInfo = map[int]models.TextureInfo{
-	PLAIN: models.TextureInfo{Key: PLAIN, ImageKey: OUTSIDE2, Src: &sdl.Rect{W: 48, H: 48}, Width: 48, Height: 48},
-	SAND: models.TextureInfo{Key: SAND, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}, Width: 48, Height: 48},
+var GroundTextureInfo = map[int]*models.TextureInfo{
+	PLAIN: &models.TextureInfo{Key: PLAIN, ImageKey: OUTSIDE2, Src: &sdl.Rect{W: 48, H: 48}, Width: 48, Height: 48},
+	SAND:  &models.TextureInfo{Key: SAND, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}, Width: 48, Height: 48},
+}
+
+var CharacterTextureInfo = map[int]*models.CharacterInfo{
+	ACTOR1: &models.CharacterInfo{Key: ACTOR1, ImageKey: IMG_ACTOR1, Src: &sdl.Rect{W: 48, H: 48}, Width: 48, Height: 48},
 }
