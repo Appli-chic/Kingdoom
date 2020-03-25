@@ -2,11 +2,12 @@ package screens
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/kingdoom/entities"
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
-	"os"
 )
 
 const TileSize = 48
@@ -67,8 +68,8 @@ func (w *World) Update() {
 }
 
 func (w *World) centerCamera() {
-	w.camera.X = w.player.Pos.X + w.player.CharacterInfo.Width/2 - w.camera.W/2
-	w.camera.Y = w.player.Pos.Y + w.player.CharacterInfo.Height/2 - w.camera.H/2
+	w.camera.X = int32(w.player.Pos.X) + w.player.CharacterInfo.Width/2 - w.camera.W/2
+	w.camera.Y = int32(w.player.Pos.Y) + w.player.CharacterInfo.Height/2 - w.camera.H/2
 }
 
 func (w *World) Render() {

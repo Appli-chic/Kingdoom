@@ -1,10 +1,11 @@
 package entities
 
 import (
+	"math"
+
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/models"
 	"github.com/veandco/go-sdl2/sdl"
-	"math"
 )
 
 type Player struct {
@@ -13,7 +14,6 @@ type Player struct {
 	CharacterInfo   *models.CharacterInfo
 	Pos             *sdl.Point
 	posToGo         *sdl.Point
-	posStart        *sdl.Point
 	speed           float64
 }
 
@@ -22,7 +22,6 @@ func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager
 		renderer,
 		resourceManager,
 		characterInfo,
-		&sdl.Point{X: x, Y: y},
 		&sdl.Point{X: x, Y: y},
 		&sdl.Point{X: x, Y: y},
 		4,
@@ -35,46 +34,30 @@ func (p *Player) OnClickToMove(mouse *sdl.MouseButtonEvent, camera *sdl.Rect) bo
 	p.posToGo.X = mouse.X + camera.X - p.CharacterInfo.Width/2
 	p.posToGo.Y = mouse.Y + camera.Y - p.CharacterInfo.Height/2
 
-	p.posStart.X = p.Pos.X
-	p.posStart.Y = p.Pos.Y
-
 	return true
 }
 
 func (p *Player) move() {
 	if p.posToGo.X != p.Pos.X && p.posToGo.Y != p.Pos.Y {
-		speed := p.speed * 0.1
-		hypotenuse := math.Sqrt(math.Abs(float64(p.posStart.X-p.posToGo.X)) + math.Abs(float64(p.posStart.Y-p.posToGo.Y)))
+		dx := float64(p.Pos.X - p.posToGo.X)
+		dy := float64(p.Pos.Y - p.posToGo.Y)
 
-		dx := math.Abs(float64(p.posStart.X-p.posToGo.X)) / hypotenuse * speed
-		dy := math.Abs(float64(p.posStart.Y-p.posToGo.Y)) / hypotenuse * speed
+		hypotenuse := math.Sqrt(dx*dx + dy*dy)
+		dx /= hypotenuse
+		dy /= hypotenuse
+		dx *= p.speed
+		dy *= p.speed
 
-		if p.posToGo.X > p.Pos.X {
-			if p.Pos.X+int32(dx) > p.posToGo.X {
-				p.Pos.X = p.posToGo.X
-			} else {
-				p.Pos.X += int32(dx)
-			}
-		} else {
-			if p.Pos.X-int32(dx) < p.posToGo.X {
-				p.Pos.X = p.posToGo.X
-			} else {
-				p.Pos.X -= int32(dx)
-			}
+		p.Pos.X -= int32(dx)
+		p.Pos.Y -= int32(dy)
+
+		// Set the right position to avoid the problem of float to int. To be improved
+		if math.Abs(dx) > math.Abs(float64(p.Pos.X-p.posToGo.X)) {
+			p.Pos.X = p.posToGo.X
 		}
 
-		if p.posToGo.Y > p.Pos.Y {
-			if p.Pos.Y+int32(dy) > p.posToGo.Y {
-				p.Pos.Y = p.posToGo.Y
-			} else {
-				p.Pos.Y += int32(dy)
-			}
-		} else {
-			if p.Pos.Y-int32(dy) < p.posToGo.Y {
-				p.Pos.Y = p.posToGo.Y
-			} else {
-				p.Pos.Y -= int32(dy)
-			}
+		if math.Abs(dy) > math.Abs(float64(p.Pos.Y-p.posToGo.Y)) {
+			p.Pos.Y = p.posToGo.Y
 		}
 	}
 }
