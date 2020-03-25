@@ -70,6 +70,23 @@ func (w *World) Update() {
 func (w *World) centerCamera() {
 	w.camera.X = int32(w.player.Pos.X) + w.player.CharacterInfo.Width/2 - w.camera.W/2
 	w.camera.Y = int32(w.player.Pos.Y) + w.player.CharacterInfo.Height/2 - w.camera.H/2
+
+	// Manage map corners
+	if w.camera.X < 0 {
+		w.camera.X = 0
+	}
+
+	if w.camera.Y < 0 {
+		w.camera.Y = 0
+	}
+
+	if w.camera.X+w.camera.W > int32(len(w.mapArray)*TileSize) {
+		w.camera.X = int32(len(w.mapArray)*TileSize) - w.camera.W
+	}
+
+	if w.camera.Y+w.camera.H > int32(len(w.mapArray[0])*TileSize) {
+		w.camera.Y = int32(len(w.mapArray[0])*TileSize) - w.camera.H
+	}
 }
 
 func (w *World) Render() {
