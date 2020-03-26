@@ -24,6 +24,9 @@ type Character struct {
 	posToGo         *sdl.Point
 	speed           float64
 	direction       int
+	currentFrame    int
+	frameRate       uint32
+	oldTime         uint32
 }
 
 func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager, characterInfo *models.CharacterInfo, x int32, y int32) *Character {
@@ -35,6 +38,9 @@ func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager
 		&sdl.Point{X: x, Y: y},
 		4,
 		DIRECTION_DEFAULT,
+		0,
+		100,
+		0,
 	}
 
 	return c
@@ -80,15 +86,45 @@ func (c *Character) getCurrentTextureRect() *sdl.Rect {
 	case DIRECTION_DEFAULT:
 		return c.CharacterInfo.DefaultTexture
 	case DIRECTION_DOWN:
-		return c.CharacterInfo.DownTextures[1]
+		return c.CharacterInfo.DownTextures[c.currentFrame]
 	case DIRECTION_LEFT:
-		return c.CharacterInfo.LeftTextures[1]
+		return c.CharacterInfo.LeftTextures[c.currentFrame]
 	case DIRECTION_RIGHT:
-		return c.CharacterInfo.RightTextures[1]
+		return c.CharacterInfo.RightTextures[c.currentFrame]
 	case DIRECTION_UP:
-		return c.CharacterInfo.UpTextures[1]
+		return c.CharacterInfo.UpTextures[c.currentFrame]
 	default:
 		return c.CharacterInfo.DefaultTexture
+	}
+}
+
+func (c *Character) animate() {
+	if c.oldTime+c.frameRate > sdl.GetTicks() {
+		return
+	}
+
+	c.oldTime = sdl.GetTicks()
+	c.currentFrame++
+
+	switch c.direction {
+	case DIRECTION_DOWN:
+		if c.currentFrame >= len(c.CharacterInfo.DownTextures) {
+			c.currentFrame = 0
+		}
+	case DIRECTION_LEFT:
+		if c.currentFrame >= len(c.CharacterInfo.LeftTextures) {
+			c.currentFrame = 0
+		}
+	case DIRECTION_RIGHT:
+		if c.currentFrame >= len(c.CharacterInfo.RightTextures) {
+			c.currentFrame = 0
+		}
+	case DIRECTION_UP:
+		if c.currentFrame >= len(c.CharacterInfo.UpTextures) {
+			c.currentFrame = 0
+		}
+	default:
+		c.currentFrame = 1
 	}
 }
 
@@ -104,6 +140,7 @@ func (c *Character) move() {
 		dy *= c.speed
 
 		c.setDirection(dx, dy)
+		c.animate()
 
 		c.Pos.X -= int32(dx)
 		c.Pos.Y -= int32(dy)
