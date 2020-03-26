@@ -5,9 +5,11 @@ import (
 )
 
 type CharacterInfo struct {
-	Key      int
-	ImageKey int
-	Src      *sdl.Rect
-	Width    int32
-	Height   int32
+	Key            int
+	ImageKey       int
+	DefaultTexture *sdl.Rect
+	DownTextures   []*sdl.Rect
+	LeftTextures   []*sdl.Rect
+	RightTextures  []*sdl.Rect
+	UpTextures     []*sdl.Rect
 }

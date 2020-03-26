@@ -17,7 +17,7 @@ type World struct {
 	renderer        *sdl.Renderer
 	mapArray        [][]int
 	camera          *sdl.Rect
-	player          *entities.Player
+	player          *entities.Character
 }
 
 func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, renderer *sdl.Renderer, width int, height int) World {
@@ -68,8 +68,8 @@ func (w *World) Update() {
 }
 
 func (w *World) centerCamera() {
-	w.camera.X = int32(w.player.Pos.X) + w.player.CharacterInfo.Width/2 - w.camera.W/2
-	w.camera.Y = int32(w.player.Pos.Y) + w.player.CharacterInfo.Height/2 - w.camera.H/2
+	w.camera.X = int32(w.player.Pos.X) + w.player.GetWidth()/2 - w.camera.W/2
+	w.camera.Y = int32(w.player.Pos.Y) + w.player.GetHeight()/2 - w.camera.H/2
 
 	// Manage map corners
 	if w.camera.X < 0 {
@@ -100,8 +100,8 @@ func (w *World) Render() {
 				&sdl.Rect{
 					X: int32(TileSize*i) - w.camera.X,
 					Y: int32(TileSize*j) - w.camera.Y,
-					W: plainInfo.Width,
-					H: plainInfo.Height,
+					W: TileSize,
+					H: TileSize,
 				},
 			)
 

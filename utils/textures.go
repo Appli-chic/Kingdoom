@@ -35,10 +35,34 @@ var ImagesPath = map[int]string{
 }
 
 var GroundTextureInfo = map[int]*models.TextureInfo{
-	PLAIN: &models.TextureInfo{Key: PLAIN, ImageKey: OUTSIDE2, Src: &sdl.Rect{W: 48, H: 48}, Width: 48, Height: 48},
-	SAND:  &models.TextureInfo{Key: SAND, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}, Width: 48, Height: 48},
+	PLAIN: &models.TextureInfo{Key: PLAIN, ImageKey: OUTSIDE2, Src: &sdl.Rect{W: 48, H: 48}},
+	SAND:  &models.TextureInfo{Key: SAND, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}},
 }
 
 var CharacterTextureInfo = map[int]*models.CharacterInfo{
-	ACTOR1: &models.CharacterInfo{Key: ACTOR1, ImageKey: IMG_ACTOR1, Src: &sdl.Rect{W: 48, H: 48}, Width: 48, Height: 48},
+	ACTOR1: &models.CharacterInfo{
+		Key:            ACTOR1,
+		ImageKey:       IMG_ACTOR1,
+		DefaultTexture: &sdl.Rect{X: 48, W: 48, H: 48},
+		DownTextures: []*sdl.Rect{
+			&sdl.Rect{W: 48, H: 48},
+			&sdl.Rect{X: 48, W: 48, H: 48},
+			&sdl.Rect{X: 96, W: 48, H: 48},
+		},
+		LeftTextures: []*sdl.Rect{
+			&sdl.Rect{Y: 48, W: 48, H: 48},
+			&sdl.Rect{X: 48, Y: 48, W: 48, H: 48},
+			&sdl.Rect{X: 96, Y: 48, W: 48, H: 48},
+		},
+		RightTextures: []*sdl.Rect{
+			&sdl.Rect{Y: 96, W: 48, H: 48},
+			&sdl.Rect{X: 48, Y: 96, W: 48, H: 48},
+			&sdl.Rect{X: 96, Y: 96, W: 48, H: 48},
+		},
+		UpTextures: []*sdl.Rect{
+			&sdl.Rect{Y: 144, W: 48, H: 48},
+			&sdl.Rect{X: 48, Y: 144, W: 48, H: 48},
+			&sdl.Rect{X: 96, Y: 144, W: 48, H: 48},
+		},
+	},
 }

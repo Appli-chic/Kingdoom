@@ -6,6 +6,4 @@ type TextureInfo struct {
 	Key      int
 	ImageKey int
 	Src      *sdl.Rect
-	Width    int32
-	Height   int32
 }
