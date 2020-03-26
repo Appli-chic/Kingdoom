@@ -1,9 +1,6 @@
 package screens
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/kingdoom/entities"
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
@@ -15,38 +12,26 @@ const TileSize = 48
 type World struct {
 	resourceManager *managers.ResourceManager
 	renderer        *sdl.Renderer
-	mapArray        [][]int
+	worldMap        *Map
 	camera          *sdl.Rect
 	player          *entities.Character
 }
 
 func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, renderer *sdl.Renderer, width int, height int) World {
-	matrix := make([][]int, width)
-	rows := make([]int, width*height)
-	for i := 0; i < width; i++ {
-		matrix[i] = rows[i*height : (i+1)*height]
-	}
-
 	windowWidth, windowHeight := window.GetSize()
 	w := World{
 		resourceManager,
 		renderer,
-		matrix,
+		NewMap(width, height),
 		&sdl.Rect{W: windowWidth, H: windowHeight},
 		entities.NewPlayer(renderer, resourceManager, utils.CharacterTextureInfo[utils.ACTOR1], 50, 50),
 	}
-	w.initMap()
 
+	// Loading textures
+	w.resourceManager.LoadTexture(utils.OUTSIDE1, renderer)
 	w.resourceManager.LoadTexture(utils.OUTSIDE2, renderer)
-	return w
-}
 
-func (w *World) initMap() {
-	//for i := 0; i < len(w.mapArray); i++ {
-	//	for j := 0; j < len(w.mapArray[0]); j++ {
-	//
-	//	}
-	//}
+	return w
 }
 
 func (w *World) HandleEvents(event sdl.Event) bool {
@@ -80,36 +65,16 @@ func (w *World) centerCamera() {
 		w.camera.Y = 0
 	}
 
-	if w.camera.X+w.camera.W > int32(len(w.mapArray)*TileSize) {
-		w.camera.X = int32(len(w.mapArray)*TileSize) - w.camera.W
+	if w.camera.X+w.camera.W > int32(len(w.worldMap.MapArray)*TileSize) {
+		w.camera.X = int32(len(w.worldMap.MapArray)*TileSize) - w.camera.W
 	}
 
-	if w.camera.Y+w.camera.H > int32(len(w.mapArray[0])*TileSize) {
-		w.camera.Y = int32(len(w.mapArray[0])*TileSize) - w.camera.H
+	if w.camera.Y+w.camera.H > int32(len(w.worldMap.MapArray[0])*TileSize) {
+		w.camera.Y = int32(len(w.worldMap.MapArray[0])*TileSize) - w.camera.H
 	}
 }
 
 func (w *World) Render() {
-	plainInfo := utils.GroundTextureInfo[utils.PLAIN]
-
-	for i := 0; i < len(w.mapArray); i++ {
-		for j := 0; j < len(w.mapArray[0]); j++ {
-			err := w.renderer.Copy(
-				w.resourceManager.GetTexture(plainInfo.ImageKey),
-				plainInfo.Src,
-				&sdl.Rect{
-					X: int32(TileSize*i) - w.camera.X,
-					Y: int32(TileSize*j) - w.camera.Y,
-					W: TileSize,
-					H: TileSize,
-				},
-			)
-
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to copy: %s\n", err)
-			}
-		}
-	}
-
+	w.worldMap.Render(w.camera, w.resourceManager, w.renderer)
 	w.player.Render(w.camera)
 }

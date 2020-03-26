@@ -17,8 +17,10 @@ const (
 
 // Ground texture keys
 const (
-	PLAIN int = 0
-	SAND  int = 20
+	PLAIN       int = 0
+	DIRT        int = 20
+	SAND        int = 40
+	WATER_GRASS int = 60
 )
 
 // Character texture keys
@@ -28,6 +30,7 @@ const (
 
 var ImagesPath = map[int]string{
 	// Ground
+	OUTSIDE1: "assets/tileset/outside1.png",
 	OUTSIDE2: "assets/tileset/outside2.png",
 
 	// Characters
@@ -35,8 +38,10 @@ var ImagesPath = map[int]string{
 }
 
 var GroundTextureInfo = map[int]*models.TextureInfo{
-	PLAIN: &models.TextureInfo{Key: PLAIN, ImageKey: OUTSIDE2, Src: &sdl.Rect{W: 48, H: 48}},
-	SAND:  &models.TextureInfo{Key: SAND, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}},
+	PLAIN:       &models.TextureInfo{Key: PLAIN, ImageKey: OUTSIDE2, Src: &sdl.Rect{W: 48, H: 48}},
+	DIRT:        &models.TextureInfo{Key: DIRT, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}},
+	SAND:        &models.TextureInfo{Key: SAND, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}},
+	WATER_GRASS: &models.TextureInfo{Key: WATER_GRASS, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 24, Y: 72, W: 48, H: 48}},
 }
 
 var CharacterTextureInfo = map[int]*models.CharacterInfo{
