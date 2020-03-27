@@ -6,18 +6,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/aquilax/go-perlin"
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const NB_BIOMES = 4
+
+type BiomeInfo struct {
+	key int
+	x   int
+	y   int
+}
+
 type Map struct {
 	MapArray [][]int
-	alpha    float64
-	beta     float64
-	n        int
-	seed     int64
 }
 
 func NewMap(width int, height int) *Map {
@@ -27,16 +30,8 @@ func NewMap(width int, height int) *Map {
 		matrix[i] = rows[i*height : (i+1)*height]
 	}
 
-	// Defines the number of seeds
-	rand.Seed(time.Now().UnixNano())
-	numberSeeds := rand.Int63()
-
 	m := &Map{
 		matrix,
-		2.,
-		2.,
-		9,
-		numberSeeds,
 	}
 
 	m.initMap(width, height)
@@ -44,32 +39,84 @@ func NewMap(width int, height int) *Map {
 	return m
 }
 
-func (m *Map) initMap(width int, height int) {
-	// Create transition map with perlin noise
-	matrix := make([][]float64, width)
-	rows := make([]float64, width*height)
-	for i := 0; i < width; i++ {
-		matrix[i] = rows[i*height : (i+1)*height]
-	}
+func (m *Map) createSeed(width int, height int, params ...int) *BiomeInfo {
+	rand.Seed(time.Now().UnixNano())
+	x := rand.Intn(width - 1)
 
-	// Show the data
-	p := perlin.NewPerlin(m.alpha, m.beta, m.n, m.seed)
-	for x := 0.; x < float64(len(matrix)); x++ {
-		for y := 0.; y < float64(len(matrix[int(x)])); y++ {
-			matrix[int(x)][int(y)] = p.Noise2D(x/10, y/10)
+	rand.Seed(time.Now().UnixNano())
+	y := rand.Intn(height - 1)
+
+	rand.Seed(time.Now().UnixNano())
+	biomeIndex := rand.Intn(NB_BIOMES)
+
+	var seed int
+
+	if params == nil {
+		seed = utils.PLAIN
+
+		switch biomeIndex {
+		case 0:
+			seed = utils.PLAIN
+		case 1:
+			seed = utils.DIRT
+		case 2:
+			seed = utils.SAND
+		case 3:
+			seed = utils.WATER
+		default:
+			seed = utils.PLAIN
 		}
+	} else {
+		seed = params[0]
 	}
 
-	// Create real map
-	for x := 0; x < len(matrix); x++ {
-		for y := 0; y < len(matrix[x]); y++ {
-			if matrix[x][y] >= 0.3 {
-				m.MapArray[x][y] = utils.WATER_GRASS
-			} else if matrix[x][y] >= -0.4 {
-				m.MapArray[x][y] = utils.PLAIN
-			} else {
-				m.MapArray[x][y] = utils.DIRT
+	return &BiomeInfo{
+		key: seed,
+		x:   x,
+		y:   y,
+	}
+}
+
+func (m *Map) initMap(width int, height int) {
+	biomeInfoList := []*BiomeInfo{}
+
+	// Create plains
+	for i := 0; i < 100; i++ {
+		seedBiomeInfo := m.createSeed(width, height, utils.PLAIN)
+		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
+	}
+
+	// Create deserts
+	for i := 0; i < 10; i++ {
+		seedBiomeInfo := m.createSeed(width, height, utils.SAND)
+		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
+	}
+
+	// Create rivers
+	for i := 0; i < 10; i++ {
+		seedBiomeInfo := m.createSeed(width, height, utils.WATER)
+		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
+	}
+
+	// Create the map
+	for x := 0; x < len(m.MapArray); x++ {
+		for y := 0; y < len(m.MapArray[x]); y++ {
+			nearest := -1
+			dist := 99999999
+
+			for i := 0; i < len(biomeInfoList); i++ {
+				xdiff := biomeInfoList[i].x - x
+				ydiff := biomeInfoList[i].y - y
+
+				cdist := xdiff*xdiff + ydiff*ydiff
+
+				if cdist < dist {
+					nearest = biomeInfoList[i].key
+					dist = cdist
+				}
 			}
+
+			m.MapArray[x][y] = nearest
 		}
 	}
 }

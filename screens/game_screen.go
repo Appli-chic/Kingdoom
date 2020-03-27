@@ -19,7 +19,7 @@ func NewGameScreen(window *sdl.Window, renderer *sdl.Renderer) *GameScreen {
 		window,
 		renderer,
 		resourceManager,
-		NewWorld(window, &resourceManager, renderer, 50, 50),
+		NewWorld(window, &resourceManager, renderer, 250, 250),
 	}
 
 	// Load players textures
