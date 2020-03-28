@@ -11,7 +11,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const NB_BIOMES = 4
+const NB_BIOMES = 3
 
 type BiomeInfo struct {
 	key int
@@ -60,8 +60,6 @@ func (m *Map) createSeed(width int, height int, params ...int) *BiomeInfo {
 		case 1:
 			seed = utils.DIRT
 		case 2:
-			seed = utils.SAND
-		case 3:
 			seed = utils.WATER
 		default:
 			seed = utils.PLAIN
@@ -77,23 +75,55 @@ func (m *Map) createSeed(width int, height int, params ...int) *BiomeInfo {
 	}
 }
 
+func (m *Map) roundBorders() {
+	for x := 1; x < len(m.MapArray)-1; x++ {
+		for y := 1; y < len(m.MapArray[x])-1; y++ {
+			if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x-1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y-1]/20 == utils.PLAIN/20 {
+				// Left Up
+				m.MapArray[x][y] = utils.DIRT_PLAIN_LEFT_UP
+			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x+1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y-1]/20 == utils.PLAIN/20 {
+				// Right Up
+				m.MapArray[x][y] = utils.DIRT_PLAIN_RIGHT_UP
+			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x-1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y+1]/20 == utils.PLAIN/20 {
+				// Left Bottom
+				m.MapArray[x][y] = utils.DIRT_PLAIN_LEFT_BOTTOM
+			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x+1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y+1]/20 == utils.PLAIN/20 {
+				// Right Bottom
+				m.MapArray[x][y] = utils.DIRT_PLAIN_RIGHT_BOTTOM
+			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x-1][y]/20 == utils.PLAIN/20 {
+				// Left
+				m.MapArray[x][y] = utils.DIRT_PLAIN_LEFT
+			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x+1][y]/20 == utils.PLAIN/20 {
+				// Right
+				m.MapArray[x][y] = utils.DIRT_PLAIN_RIGHT
+			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x][y+1]/20 == utils.PLAIN/20 {
+				// Down
+				m.MapArray[x][y] = utils.DIRT_PLAIN_DOWN
+			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x][y-1]/20 == utils.PLAIN/20 {
+				// Up
+				m.MapArray[x][y] = utils.DIRT_PLAIN_UP
+			}
+		}
+	}
+}
+
 func (m *Map) initMap(width int, height int) {
 	biomeInfoList := []*BiomeInfo{}
 
 	// Create plains
-	for i := 0; i < 100; i++ {
+	for i := 0; i < int(float64(width)/2.5); i++ {
 		seedBiomeInfo := m.createSeed(width, height, utils.PLAIN)
 		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
 	}
 
 	// Create deserts
-	for i := 0; i < 10; i++ {
-		seedBiomeInfo := m.createSeed(width, height, utils.SAND)
+	for i := 0; i < int(float64(width)/10); i++ {
+		seedBiomeInfo := m.createSeed(width, height, utils.DIRT)
 		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
 	}
 
-	// Create rivers
-	for i := 0; i < 10; i++ {
+	// Create lakes
+	for i := 0; i < int(float64(width)/25); i++ {
 		seedBiomeInfo := m.createSeed(width, height, utils.WATER)
 		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
 	}
@@ -119,6 +149,8 @@ func (m *Map) initMap(width int, height int) {
 			m.MapArray[x][y] = nearest
 		}
 	}
+
+	m.roundBorders()
 }
 
 func (m *Map) displaysTile(camera *sdl.Rect, resourceManager *managers.ResourceManager,
