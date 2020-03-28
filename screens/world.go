@@ -57,20 +57,20 @@ func (w *World) centerCamera() {
 	w.camera.Y = int32(w.player.Pos.Y) + w.player.GetHeight()/2 - w.camera.H/2
 
 	// Manage map corners
-	if w.camera.X < 0 {
-		w.camera.X = 0
+	if w.camera.X < 1*TileSize {
+		w.camera.X = 1 * TileSize
 	}
 
-	if w.camera.Y < 0 {
-		w.camera.Y = 0
+	if w.camera.Y < 1*TileSize {
+		w.camera.Y = 1 * TileSize
 	}
 
-	if w.camera.X+w.camera.W > int32(len(w.worldMap.MapArray)*TileSize) {
-		w.camera.X = int32(len(w.worldMap.MapArray)*TileSize) - w.camera.W
+	if w.camera.X+w.camera.W > int32(len(w.worldMap.MapArray)*TileSize)-1*TileSize {
+		w.camera.X = int32(len(w.worldMap.MapArray)*TileSize) - w.camera.W - 1*TileSize
 	}
 
-	if w.camera.Y+w.camera.H > int32(len(w.worldMap.MapArray[0])*TileSize) {
-		w.camera.Y = int32(len(w.worldMap.MapArray[0])*TileSize) - w.camera.H
+	if w.camera.Y+w.camera.H > int32(len(w.worldMap.MapArray[0])*TileSize)-1*TileSize {
+		w.camera.Y = int32(len(w.worldMap.MapArray[0])*TileSize) - w.camera.H - 1*TileSize
 	}
 }
 

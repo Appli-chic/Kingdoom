@@ -75,34 +75,39 @@ func (m *Map) createSeed(width int, height int, params ...int) *BiomeInfo {
 	}
 }
 
+func (m *Map) roundBorderBetweenTwoBiomes(x int, y int, biome1 int, biome2 int) {
+	if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x-1][y]/20 == biome2/20 && m.MapArray[x][y-1]/20 == biome2/20 {
+		// Left Up
+		m.MapArray[x][y] = biome1 + 5
+	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x+1][y]/20 == biome2/20 && m.MapArray[x][y-1]/20 == biome2/20 {
+		// Right Up
+		m.MapArray[x][y] = biome1 + 6
+	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x-1][y]/20 == biome2/20 && m.MapArray[x][y+1]/20 == biome2/20 {
+		// Left Bottom
+		m.MapArray[x][y] = biome1 + 7
+	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x+1][y]/20 == biome2/20 && m.MapArray[x][y+1]/20 == biome2/20 {
+		// Right Bottom
+		m.MapArray[x][y] = biome1 + 8
+	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x-1][y]/20 == biome2/20 {
+		// Left
+		m.MapArray[x][y] = biome1 + 1
+	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x+1][y]/20 == biome2/20 {
+		// Right
+		m.MapArray[x][y] = biome1 + 2
+	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x][y+1]/20 == biome2/20 {
+		// Down
+		m.MapArray[x][y] = biome1 + 3
+	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x][y-1]/20 == biome2/20 {
+		// Up
+		m.MapArray[x][y] = biome1 + 4
+	}
+}
+
 func (m *Map) roundBorders() {
 	for x := 1; x < len(m.MapArray)-1; x++ {
 		for y := 1; y < len(m.MapArray[x])-1; y++ {
-			if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x-1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y-1]/20 == utils.PLAIN/20 {
-				// Left Up
-				m.MapArray[x][y] = utils.DIRT_PLAIN_LEFT_UP
-			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x+1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y-1]/20 == utils.PLAIN/20 {
-				// Right Up
-				m.MapArray[x][y] = utils.DIRT_PLAIN_RIGHT_UP
-			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x-1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y+1]/20 == utils.PLAIN/20 {
-				// Left Bottom
-				m.MapArray[x][y] = utils.DIRT_PLAIN_LEFT_BOTTOM
-			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x+1][y]/20 == utils.PLAIN/20 && m.MapArray[x][y+1]/20 == utils.PLAIN/20 {
-				// Right Bottom
-				m.MapArray[x][y] = utils.DIRT_PLAIN_RIGHT_BOTTOM
-			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x-1][y]/20 == utils.PLAIN/20 {
-				// Left
-				m.MapArray[x][y] = utils.DIRT_PLAIN_LEFT
-			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x+1][y]/20 == utils.PLAIN/20 {
-				// Right
-				m.MapArray[x][y] = utils.DIRT_PLAIN_RIGHT
-			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x][y+1]/20 == utils.PLAIN/20 {
-				// Down
-				m.MapArray[x][y] = utils.DIRT_PLAIN_DOWN
-			} else if m.MapArray[x][y]/20 == utils.DIRT/20 && m.MapArray[x][y-1]/20 == utils.PLAIN/20 {
-				// Up
-				m.MapArray[x][y] = utils.DIRT_PLAIN_UP
-			}
+			m.roundBorderBetweenTwoBiomes(x, y, utils.DIRT, utils.PLAIN)
+			m.roundBorderBetweenTwoBiomes(x, y, utils.WATER, utils.PLAIN)
 		}
 	}
 }
@@ -117,13 +122,13 @@ func (m *Map) initMap(width int, height int) {
 	}
 
 	// Create deserts
-	for i := 0; i < int(float64(width)/10); i++ {
+	for i := 0; i < int(float64(width)/25); i++ {
 		seedBiomeInfo := m.createSeed(width, height, utils.DIRT)
 		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
 	}
 
 	// Create lakes
-	for i := 0; i < int(float64(width)/25); i++ {
+	for i := 0; i < int(float64(width)/10); i++ {
 		seedBiomeInfo := m.createSeed(width, height, utils.WATER)
 		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
 	}
@@ -180,20 +185,20 @@ func (m *Map) Render(camera *sdl.Rect, resourceManager *managers.ResourceManager
 	minY := int(camera.Y/TileSize) - 2
 	maxY := int((camera.Y+camera.H)/TileSize) + 2
 
-	if minX < 0 {
-		minX = 0
+	if minX < 1 {
+		minX = 1
 	}
 
-	if minY < 0 {
-		minY = 0
+	if minY < 1 {
+		minY = 1
 	}
 
-	if maxX > len(m.MapArray) {
-		maxX = len(m.MapArray)
+	if maxX > len(m.MapArray)-1 {
+		maxX = len(m.MapArray) - 1
 	}
 
-	if maxY > len(m.MapArray[0]) {
-		maxY = len(m.MapArray[0])
+	if maxY > len(m.MapArray[0])-1 {
+		maxY = len(m.MapArray[0]) - 1
 	}
 
 	for x := minX; x < maxX; x++ {
