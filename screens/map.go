@@ -12,6 +12,7 @@ import (
 )
 
 const NB_BIOMES = 3
+const NB_INT_BIOME = 20
 
 type BiomeInfo struct {
 	key int
@@ -76,28 +77,48 @@ func (m *Map) createSeed(width int, height int, params ...int) *BiomeInfo {
 }
 
 func (m *Map) roundBorderBetweenTwoBiomes(x int, y int, biome1 int, biome2 int) {
-	if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x-1][y]/20 == biome2/20 && m.MapArray[x][y-1]/20 == biome2/20 {
+	if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y-1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
+		// Corner Left Up
+		m.MapArray[x][y] = biome1 + 9
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y-1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
+		// Corner Right Up
+		m.MapArray[x][y] = biome1 + 10
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y+1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
+		// Corner Left Bottom
+		m.MapArray[x][y] = biome1 + 11
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y+1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
+		// Corner Right Bottom
+		m.MapArray[x][y] = biome1 + 12
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME == biome2/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Left Up
 		m.MapArray[x][y] = biome1 + 5
-	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x+1][y]/20 == biome2/20 && m.MapArray[x][y-1]/20 == biome2/20 {
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME == biome2/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Right Up
 		m.MapArray[x][y] = biome1 + 6
-	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x-1][y]/20 == biome2/20 && m.MapArray[x][y+1]/20 == biome2/20 {
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME == biome2/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Left Bottom
 		m.MapArray[x][y] = biome1 + 7
-	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x+1][y]/20 == biome2/20 && m.MapArray[x][y+1]/20 == biome2/20 {
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME == biome2/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Right Bottom
 		m.MapArray[x][y] = biome1 + 8
-	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x-1][y]/20 == biome2/20 {
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Left
 		m.MapArray[x][y] = biome1 + 1
-	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x+1][y]/20 == biome2/20 {
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Right
 		m.MapArray[x][y] = biome1 + 2
-	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x][y+1]/20 == biome2/20 {
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x][y+1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Down
 		m.MapArray[x][y] = biome1 + 3
-	} else if m.MapArray[x][y]/20 == biome1/20 && m.MapArray[x][y-1]/20 == biome2/20 {
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x][y-1]/NB_INT_BIOME == biome2/NB_INT_BIOME {
 		// Up
 		m.MapArray[x][y] = biome1 + 4
 	}
@@ -122,7 +143,7 @@ func (m *Map) initMap(width int, height int) {
 	}
 
 	// Create deserts
-	for i := 0; i < int(float64(width)/25); i++ {
+	for i := 0; i < int(float64(width)/10); i++ {
 		seedBiomeInfo := m.createSeed(width, height, utils.DIRT)
 		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
 	}
