@@ -2,9 +2,9 @@ package screens
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
-	"time"
 
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
@@ -13,12 +13,6 @@ import (
 
 const NB_BIOMES = 3
 const NB_INT_BIOME = 20
-
-type BiomeInfo struct {
-	key int
-	x   int
-	y   int
-}
 
 type Map struct {
 	MapArray [][]int
@@ -38,42 +32,6 @@ func NewMap(width int, height int) *Map {
 	m.initMap(width, height)
 
 	return m
-}
-
-func (m *Map) createSeed(width int, height int, params ...int) *BiomeInfo {
-	rand.Seed(time.Now().UnixNano())
-	x := rand.Intn(width - 1)
-
-	rand.Seed(time.Now().UnixNano())
-	y := rand.Intn(height - 1)
-
-	rand.Seed(time.Now().UnixNano())
-	biomeIndex := rand.Intn(NB_BIOMES)
-
-	var seed int
-
-	if params == nil {
-		seed = utils.PLAIN
-
-		switch biomeIndex {
-		case 0:
-			seed = utils.PLAIN
-		case 1:
-			seed = utils.DIRT
-		case 2:
-			seed = utils.WATER
-		default:
-			seed = utils.PLAIN
-		}
-	} else {
-		seed = params[0]
-	}
-
-	return &BiomeInfo{
-		key: seed,
-		x:   x,
-		y:   y,
-	}
 }
 
 func (m *Map) roundBorderBetweenTwoBiomes(x int, y int, biome1 int, biome2 int) {
@@ -133,48 +91,102 @@ func (m *Map) roundBorders() {
 	}
 }
 
-func (m *Map) initMap(width int, height int) {
-	biomeInfoList := []*BiomeInfo{}
+func (m *Map) createRiver() {
+	x := 1.
+	y := 5.
+	endRiverX := 100.
+	endRiverY := 100.
 
-	// Create plains
-	for i := 0; i < int(float64(width)/2.5); i++ {
-		seedBiomeInfo := m.createSeed(width, height, utils.PLAIN)
-		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
-	}
+	m.MapArray[int(x)][int(y)] = utils.WATER
 
-	// Create deserts
-	for i := 0; i < int(float64(width)/10); i++ {
-		seedBiomeInfo := m.createSeed(width, height, utils.DIRT)
-		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
-	}
+	for {
+		finalResults := []float64{}
 
-	// Create lakes
-	for i := 0; i < int(float64(width)/10); i++ {
-		seedBiomeInfo := m.createSeed(width, height, utils.WATER)
-		biomeInfoList = append(biomeInfoList, seedBiomeInfo)
-	}
+		// Calculate Top
+		distanceToEnd := math.Abs(x-endRiverX) + math.Abs(y-endRiverY)
+		finalResults = append(finalResults, distanceToEnd)
 
-	// Create the map
-	for x := 0; x < len(m.MapArray); x++ {
-		for y := 0; y < len(m.MapArray[x]); y++ {
-			nearest := -1
-			dist := 99999999
+		// Calculate Right
+		distanceToEnd = math.Abs(x+1-endRiverX) + math.Abs(y-endRiverY)
+		finalResults = append(finalResults, distanceToEnd)
 
-			for i := 0; i < len(biomeInfoList); i++ {
-				xdiff := biomeInfoList[i].x - x
-				ydiff := biomeInfoList[i].y - y
+		// Calculate Bottom
+		distanceToEnd = math.Abs(x-endRiverX) + math.Abs(y+1-endRiverY)
+		finalResults = append(finalResults, distanceToEnd)
 
-				cdist := xdiff*xdiff + ydiff*ydiff
+		// Calculate Left
+		distanceToEnd = math.Abs(x-1-endRiverX) + math.Abs(y-endRiverY)
+		finalResults = append(finalResults, distanceToEnd)
 
-				if cdist < dist {
-					nearest = biomeInfoList[i].key
-					dist = cdist
-				}
+		// Choose which direction to take
+		smallestNumber := 999999999999.
+		direction := -1
+		secondDirection := -1
+		finalDirection := -1
+
+		for i := 0; i < len(finalResults); i++ {
+			if finalResults[i] < smallestNumber {
+				smallestNumber = finalResults[i]
+				direction = i
 			}
+		}
 
-			m.MapArray[x][y] = nearest
+		for i := 0; i < len(finalResults); i++ {
+			if finalResults[i] == smallestNumber && i != direction {
+				secondDirection = i
+			}
+		}
+
+		if secondDirection < 0 {
+			// There is only one direction
+			finalDirection = direction
+		} else {
+			// There is a second direction possible
+			randomVal := rand.Intn(2)
+
+			if randomVal == 0 {
+				finalDirection = direction
+			} else {
+				finalDirection = secondDirection
+			}
+		}
+
+		switch finalDirection {
+		case 0:
+			y -= 1 // Top
+			break
+		case 1:
+			x += 1 // Right
+			break
+		case 2:
+			y += 1 // Bottom
+			break
+		case 3:
+			x -= 1 // Left
+			break
+		}
+
+		// Set the new tile as water
+		if int(x) < len(m.MapArray)-1 && int(y) < len(m.MapArray[0])-1 && x > 0 && y > 0 {
+			m.MapArray[int(x)][int(y)] = utils.WATER
+		}
+
+		// We found the end of the river
+		if x == endRiverX && y == endRiverY {
+			break
 		}
 	}
+}
+
+func (m *Map) initMap(width int, height int) {
+	// Create rivers
+	m.createRiver()
+
+	// Create the map
+	// for x := 0; x < len(m.MapArray); x++ {
+	// 	for y := 0; y < len(m.MapArray[x]); y++ {
+	// 	}
+	// }
 
 	m.roundBorders()
 }
