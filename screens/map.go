@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"time"
 
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
@@ -91,19 +92,40 @@ func (m *Map) roundBorders() {
 	}
 }
 
+func (m *Map) growRiverSize(x int, y int, size int, lastDirection int) {
+	for i := -size; i < size; i++ {
+		if lastDirection == 0 || lastDirection == 2 {
+			if x+i < len(m.MapArray) && y < len(m.MapArray[0]) && x+i > 0 && y > 0 {
+				m.MapArray[x+i][y] = utils.WATER
+			}
+		} else {
+			if x < len(m.MapArray) && y+i < len(m.MapArray[0]) && x > 0 && y+i > 0 {
+				m.MapArray[x][y+i] = utils.WATER
+			}
+		}
+	}
+}
+
 func (m *Map) createRiver() {
-	x := 1.
-	y := 5.
-	endRiverX := 100.
-	endRiverY := 100.
+	size := 3
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	x := 0.
+	y := float64(r.Intn(len(m.MapArray)))
+
+	r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	endRiverX := float64(len(m.MapArray) - 1)
+	endRiverY := float64(r.Intn(len(m.MapArray[0])))
+	lastDirection := -1
 
 	m.MapArray[int(x)][int(y)] = utils.WATER
+	m.growRiverSize(int(x), int(y), size, 3)
 
 	for {
 		finalResults := []float64{}
 
 		// Calculate Top
-		distanceToEnd := math.Abs(x-endRiverX) + math.Abs(y-endRiverY)
+		distanceToEnd := math.Abs(x-endRiverX) + math.Abs(y-1-endRiverY)
 		finalResults = append(finalResults, distanceToEnd)
 
 		// Calculate Right
@@ -140,14 +162,18 @@ func (m *Map) createRiver() {
 		if secondDirection < 0 {
 			// There is only one direction
 			finalDirection = direction
+			lastDirection = direction
 		} else {
 			// There is a second direction possible
-			randomVal := rand.Intn(2)
+			r = rand.New(rand.NewSource(time.Now().UnixNano()))
+			randomVal := r.Intn(2)
 
 			if randomVal == 0 {
 				finalDirection = direction
+				lastDirection = direction
 			} else {
 				finalDirection = secondDirection
+				lastDirection = secondDirection
 			}
 		}
 
@@ -167,9 +193,8 @@ func (m *Map) createRiver() {
 		}
 
 		// Set the new tile as water
-		if int(x) < len(m.MapArray)-1 && int(y) < len(m.MapArray[0])-1 && x > 0 && y > 0 {
-			m.MapArray[int(x)][int(y)] = utils.WATER
-		}
+		m.MapArray[int(x)][int(y)] = utils.WATER
+		m.growRiverSize(int(x), int(y), size, lastDirection)
 
 		// We found the end of the river
 		if x == endRiverX && y == endRiverY {
