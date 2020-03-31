@@ -66,7 +66,7 @@ var GroundTextureInfo = map[int]*models.TextureInfo{
 	PLAIN: &models.TextureInfo{Key: PLAIN, ImageKey: OUTSIDE2, Src: &sdl.Rect{W: 48, H: 48}},
 
 	DIRT:                     &models.TextureInfo{Key: DIRT, ImageKey: OUTSIDE2, Src: &sdl.Rect{Y: 192, W: 48, H: 48}},
-	DIRT_PLAIN_LEFT:          &models.TextureInfo{Key: DIRT_PLAIN_LEFT, ImageKey: OUTSIDE2, Src: &sdl.Rect{X: 72, Y: 72, W: 48, H: 48}},
+	DIRT_PLAIN_LEFT:          &models.TextureInfo{Key: DIRT_PLAIN_LEFT, ImageKey: OUTSIDE2, Src: &sdl.Rect{X: 96, Y: 72, W: 48, H: 48}},
 	DIRT_PLAIN_RIGHT:         &models.TextureInfo{Key: DIRT_PLAIN_RIGHT, ImageKey: OUTSIDE2, Src: &sdl.Rect{X: 144, Y: 72, W: 48, H: 48}},
 	DIRT_PLAIN_DOWN:          &models.TextureInfo{Key: DIRT_PLAIN_DOWN, ImageKey: OUTSIDE2, Src: &sdl.Rect{X: 120, Y: 96, W: 48, H: 48}},
 	DIRT_PLAIN_UP:            &models.TextureInfo{Key: DIRT_PLAIN_UP, ImageKey: OUTSIDE2, Src: &sdl.Rect{X: 120, Y: 48, W: 48, H: 48}},

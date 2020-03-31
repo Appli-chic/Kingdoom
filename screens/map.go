@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/aquilax/go-perlin"
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
@@ -88,6 +89,8 @@ func (m *Map) roundBorders() {
 		for y := 1; y < len(m.MapArray[x])-1; y++ {
 			m.roundBorderBetweenTwoBiomes(x, y, utils.DIRT, utils.PLAIN)
 			m.roundBorderBetweenTwoBiomes(x, y, utils.WATER, utils.PLAIN)
+			m.roundBorderBetweenTwoBiomes(x, y, utils.WATER, utils.DIRT)
+			m.roundBorderBetweenTwoBiomes(x, y, utils.DIRT, utils.WATER)
 		}
 	}
 }
@@ -107,9 +110,10 @@ func (m *Map) growRiverSize(x int, y int, size int, lastDirection int) {
 }
 
 func (m *Map) createRiver() {
-	size := 3
-
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	size := r.Intn(10-3) + 3
+
+	r = rand.New(rand.NewSource(time.Now().UnixNano()))
 	x := 0.
 	y := float64(r.Intn(len(m.MapArray)))
 
@@ -119,7 +123,7 @@ func (m *Map) createRiver() {
 	lastDirection := -1
 
 	m.MapArray[int(x)][int(y)] = utils.WATER
-	m.growRiverSize(int(x), int(y), size, 3)
+	m.growRiverSize(0, int(y), size, 3)
 
 	for {
 		finalResults := []float64{}
@@ -203,8 +207,43 @@ func (m *Map) createRiver() {
 	}
 }
 
+func (m *Map) generateBiome(biome int, width int, height int) {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	sizeX := r.Intn((width/3)-20) + 20
+
+	r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	sizeY := r.Intn((width/3)-20) + 20
+
+	alpha := 2.
+	beta := 2.
+	n := 3
+
+	r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	seed := int64(r.Int())
+	p := perlin.NewPerlin(alpha, beta, n, seed)
+
+	r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	seedX := r.Intn(width)
+
+	r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	seedY := r.Intn(height)
+
+	for x := seedX - sizeX; x < seedX+sizeX; x++ {
+		for y := seedY; y < seedY+sizeY; y++ {
+			if x < len(m.MapArray) && y < len(m.MapArray[0]) && x > 0 && y > 0 {
+				m.MapArray[x][y] = biome
+			}
+		}
+	}
+
+	println(p.Noise2D(0/10, 0/10))
+}
+
 func (m *Map) initMap(width int, height int) {
-	// Create rivers
+	// Create biome
+	m.generateBiome(utils.DIRT, width, height)
+
+	// Create river
 	m.createRiver()
 
 	// Create the map
