@@ -1,8 +1,11 @@
 package screens
 
 import (
+	"log"
+
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
+	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -24,6 +27,13 @@ func NewGameScreen(window *sdl.Window, renderer *sdl.Renderer) *GameScreen {
 
 	// Load players textures
 	g.resourceManager.LoadTexture(utils.IMG_ACTOR1, renderer)
+
+	// Play music
+	if music, err := mix.LoadMUS("assets/music/Theme1.ogg"); err != nil {
+		log.Println(err)
+	} else if err = music.Play(1); err != nil {
+		log.Println(err)
+	}
 
 	return g
 }

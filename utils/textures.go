@@ -46,6 +46,35 @@ const (
 	WATER_CORNER_RIGHT_UP     int = 50
 	WATER_CORNER_LEFT_BOTTOM  int = 51
 	WATER_CORNER_RIGHT_BOTTOM int = 52
+
+	// Water animation
+	WATER2                     int = 1040
+	WATER2_PLAIN_LEFT          int = 1041
+	WATER2_PLAIN_RIGHT         int = 1042
+	WATER2_PLAIN_DOWN          int = 1043
+	WATER2_PLAIN_UP            int = 1044
+	WATER2_PLAIN_LEFT_UP       int = 1045
+	WATER2_PLAIN_RIGHT_UP      int = 1046
+	WATER2_PLAIN_LEFT_BOTTOM   int = 1047
+	WATER2_PLAIN_RIGHT_BOTTOM  int = 1048
+	WATER2_CORNER_LEFT_UP      int = 1049
+	WATER2_CORNER_RIGHT_UP     int = 1050
+	WATER2_CORNER_LEFT_BOTTOM  int = 1051
+	WATER2_CORNER_RIGHT_BOTTOM int = 1052
+
+	WATER3                     int = 2040
+	WATER3_PLAIN_LEFT          int = 2041
+	WATER3_PLAIN_RIGHT         int = 2042
+	WATER3_PLAIN_DOWN          int = 2043
+	WATER3_PLAIN_UP            int = 2044
+	WATER3_PLAIN_LEFT_UP       int = 2045
+	WATER3_PLAIN_RIGHT_UP      int = 2046
+	WATER3_PLAIN_LEFT_BOTTOM   int = 2047
+	WATER3_PLAIN_RIGHT_BOTTOM  int = 2048
+	WATER3_CORNER_LEFT_UP      int = 2049
+	WATER3_CORNER_RIGHT_UP     int = 2050
+	WATER3_CORNER_LEFT_BOTTOM  int = 2051
+	WATER3_CORNER_RIGHT_BOTTOM int = 2052
 )
 
 // Character texture keys
@@ -92,6 +121,35 @@ var GroundTextureInfo = map[int]*models.TextureInfo{
 	WATER_CORNER_RIGHT_UP:     &models.TextureInfo{Key: WATER_CORNER_RIGHT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 816, W: 48, H: 48}},
 	WATER_CORNER_LEFT_BOTTOM:  &models.TextureInfo{Key: WATER_CORNER_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 768, Y: 48, W: 48, H: 48}},
 	WATER_CORNER_RIGHT_BOTTOM: &models.TextureInfo{Key: WATER_CORNER_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 816, Y: 48, W: 48, H: 48}},
+
+	// Water animation
+	WATER2:                     &models.TextureInfo{Key: WATER2, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 120, Y: 72, W: 48, H: 48}},
+	WATER2_PLAIN_LEFT:          &models.TextureInfo{Key: WATER2_PLAIN_LEFT, ImageKey: OUTSIDE1, Src: &sdl.Rect{Y: 72, W: 48, H: 48}},
+	WATER2_PLAIN_RIGHT:         &models.TextureInfo{Key: WATER2_PLAIN_RIGHT, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 144, Y: 72, W: 48, H: 48}},
+	WATER2_PLAIN_DOWN:          &models.TextureInfo{Key: WATER2_PLAIN_DOWN, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 120, Y: 96, W: 48, H: 48}},
+	WATER2_PLAIN_UP:            &models.TextureInfo{Key: WATER2_PLAIN_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 120, Y: 48, W: 48, H: 48}},
+	WATER2_PLAIN_LEFT_UP:       &models.TextureInfo{Key: WATER2_PLAIN_LEFT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{Y: 48, W: 48, H: 48}},
+	WATER2_PLAIN_RIGHT_UP:      &models.TextureInfo{Key: WATER2_PLAIN_RIGHT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 144, Y: 48, W: 48, H: 48}},
+	WATER2_PLAIN_LEFT_BOTTOM:   &models.TextureInfo{Key: WATER2_PLAIN_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{Y: 96, W: 48, H: 48}},
+	WATER2_PLAIN_RIGHT_BOTTOM:  &models.TextureInfo{Key: WATER2_PLAIN_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 144, Y: 96, W: 48, H: 48}},
+	WATER2_CORNER_LEFT_UP:      &models.TextureInfo{Key: WATER2_CORNER_LEFT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 864, W: 48, H: 48}},
+	WATER2_CORNER_RIGHT_UP:     &models.TextureInfo{Key: WATER2_CORNER_RIGHT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 912, W: 48, H: 48}},
+	WATER2_CORNER_LEFT_BOTTOM:  &models.TextureInfo{Key: WATER2_CORNER_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 864, Y: 48, W: 48, H: 48}},
+	WATER2_CORNER_RIGHT_BOTTOM: &models.TextureInfo{Key: WATER2_CORNER_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 912, Y: 48, W: 48, H: 48}},
+
+	WATER3:                     &models.TextureInfo{Key: WATER3, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 120, Y: 72, W: 48, H: 48}},
+	WATER3_PLAIN_LEFT:          &models.TextureInfo{Key: WATER3_PLAIN_LEFT, ImageKey: OUTSIDE1, Src: &sdl.Rect{Y: 72, W: 48, H: 48}},
+	WATER3_PLAIN_RIGHT:         &models.TextureInfo{Key: WATER3_PLAIN_RIGHT, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 240, Y: 72, W: 48, H: 48}},
+	WATER3_PLAIN_DOWN:          &models.TextureInfo{Key: WATER3_PLAIN_DOWN, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 216, Y: 96, W: 48, H: 48}},
+	WATER3_PLAIN_UP:            &models.TextureInfo{Key: WATER3_PLAIN_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 216, Y: 48, W: 48, H: 48}},
+	WATER3_PLAIN_LEFT_UP:       &models.TextureInfo{Key: WATER3_PLAIN_LEFT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{Y: 48, W: 48, H: 48}},
+	WATER3_PLAIN_RIGHT_UP:      &models.TextureInfo{Key: WATER3_PLAIN_RIGHT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 240, Y: 48, W: 48, H: 48}},
+	WATER3_PLAIN_LEFT_BOTTOM:   &models.TextureInfo{Key: WATER3_PLAIN_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{Y: 96, W: 48, H: 48}},
+	WATER3_PLAIN_RIGHT_BOTTOM:  &models.TextureInfo{Key: WATER3_PLAIN_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 240, Y: 96, W: 48, H: 48}},
+	WATER3_CORNER_LEFT_UP:      &models.TextureInfo{Key: WATER3_CORNER_LEFT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 960, W: 48, H: 48}},
+	WATER3_CORNER_RIGHT_UP:     &models.TextureInfo{Key: WATER3_CORNER_RIGHT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 1008, W: 48, H: 48}},
+	WATER3_CORNER_LEFT_BOTTOM:  &models.TextureInfo{Key: WATER3_CORNER_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 960, Y: 48, W: 48, H: 48}},
+	WATER3_CORNER_RIGHT_BOTTOM: &models.TextureInfo{Key: WATER3_CORNER_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 1008, Y: 48, W: 48, H: 48}},
 }
 
 var CharacterTextureInfo = map[int]*models.CharacterInfo{

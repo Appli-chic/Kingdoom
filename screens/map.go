@@ -15,9 +15,13 @@ import (
 
 const NB_BIOMES = 3
 const NB_INT_BIOME = 20
+const NB_INT_WATER_ANIMATION = 1000
 
 type Map struct {
-	MapArray [][]int
+	MapArray          [][]int
+	currentFrameWater int
+	frameRateWater    uint32
+	oldTimeWater      uint32
 }
 
 func NewMap(width int, height int) *Map {
@@ -29,6 +33,9 @@ func NewMap(width int, height int) *Map {
 
 	m := &Map{
 		matrix,
+		0,
+		150,
+		0,
 	}
 
 	m.initMap(width, height)
@@ -84,13 +91,59 @@ func (m *Map) roundBorderBetweenTwoBiomes(x int, y int, biome1 int, biome2 int) 
 	}
 }
 
+func (m *Map) roundBorderOneBiomeAgainstAll(x int, y int, biome1 int) {
+	if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y-1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Corner Left Up
+		m.MapArray[x][y] = biome1 + 9
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y-1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Corner Right Up
+		m.MapArray[x][y] = biome1 + 10
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y+1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Corner Left Bottom
+		m.MapArray[x][y] = biome1 + 11
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME == biome1/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y+1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Corner Right Bottom
+		m.MapArray[x][y] = biome1 + 12
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME != biome1/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Left Up
+		m.MapArray[x][y] = biome1 + 5
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME != biome1/NB_INT_BIOME &&
+		m.MapArray[x][y-1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Right Up
+		m.MapArray[x][y] = biome1 + 6
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME != biome1/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Left Bottom
+		m.MapArray[x][y] = biome1 + 7
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME != biome1/NB_INT_BIOME &&
+		m.MapArray[x][y+1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Right Bottom
+		m.MapArray[x][y] = biome1 + 8
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x-1][y]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Left
+		m.MapArray[x][y] = biome1 + 1
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x+1][y]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Right
+		m.MapArray[x][y] = biome1 + 2
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x][y+1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Down
+		m.MapArray[x][y] = biome1 + 3
+	} else if m.MapArray[x][y]/NB_INT_BIOME == biome1/NB_INT_BIOME && m.MapArray[x][y-1]/NB_INT_BIOME != biome1/NB_INT_BIOME {
+		// Up
+		m.MapArray[x][y] = biome1 + 4
+	}
+}
+
 func (m *Map) roundBorders() {
 	for x := 1; x < len(m.MapArray)-1; x++ {
 		for y := 1; y < len(m.MapArray[x])-1; y++ {
-			m.roundBorderBetweenTwoBiomes(x, y, utils.DIRT, utils.PLAIN)
-			m.roundBorderBetweenTwoBiomes(x, y, utils.WATER, utils.PLAIN)
-			m.roundBorderBetweenTwoBiomes(x, y, utils.WATER, utils.DIRT)
-			m.roundBorderBetweenTwoBiomes(x, y, utils.DIRT, utils.WATER)
+			m.roundBorderOneBiomeAgainstAll(x, y, utils.DIRT)
+			m.roundBorderOneBiomeAgainstAll(x, y, utils.WATER)
 		}
 	}
 }
@@ -98,11 +151,11 @@ func (m *Map) roundBorders() {
 func (m *Map) growRiverSize(x int, y int, size int, lastDirection int) {
 	for i := -size; i < size; i++ {
 		if lastDirection == 0 || lastDirection == 2 {
-			if x+i < len(m.MapArray) && y < len(m.MapArray[0]) && x+i > 0 && y > 0 {
+			if x+i < len(m.MapArray) && y < len(m.MapArray[0]) && x+i >= 0 && y >= 0 {
 				m.MapArray[x+i][y] = utils.WATER
 			}
 		} else {
-			if x < len(m.MapArray) && y+i < len(m.MapArray[0]) && x > 0 && y+i > 0 {
+			if x < len(m.MapArray) && y+i < len(m.MapArray[0]) && x >= 0 && y+i >= 0 {
 				m.MapArray[x][y+i] = utils.WATER
 			}
 		}
@@ -230,7 +283,7 @@ func (m *Map) generateBiome(biome int, width int, height int) {
 
 	for x := seedX - sizeX; x < seedX+sizeX; x++ {
 		for y := seedY; y < seedY+sizeY; y++ {
-			if x < len(m.MapArray) && y < len(m.MapArray[0]) && x > 0 && y > 0 {
+			if x < len(m.MapArray) && y < len(m.MapArray[0]) && x >= 0 && y >= 0 {
 				m.MapArray[x][y] = biome
 			}
 		}
@@ -241,7 +294,12 @@ func (m *Map) generateBiome(biome int, width int, height int) {
 
 func (m *Map) initMap(width int, height int) {
 	// Create biome
-	m.generateBiome(utils.DIRT, width, height)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	numberDirtBiome := r.Intn(4-1) + 1
+
+	for i := 0; i < numberDirtBiome; i++ {
+		m.generateBiome(utils.DIRT, width, height)
+	}
 
 	// Create river
 	m.createRiver()
@@ -255,9 +313,31 @@ func (m *Map) initMap(width int, height int) {
 	m.roundBorders()
 }
 
+func (m *Map) animateWater() {
+	if m.oldTimeWater+m.frameRateWater > sdl.GetTicks() {
+		return
+	}
+
+	m.oldTimeWater = sdl.GetTicks()
+	m.currentFrameWater++
+
+	if m.currentFrameWater > 2 {
+		m.currentFrameWater = 0
+	}
+}
+
+func (m *Map) Update() {
+	m.animateWater()
+}
+
 func (m *Map) displaysTile(camera *sdl.Rect, resourceManager *managers.ResourceManager,
 	renderer *sdl.Renderer, x int, y int) {
 	tileInfo := utils.GroundTextureInfo[m.MapArray[x][y]]
+
+	// Take the animating water tile
+	if m.MapArray[x][y]/NB_INT_BIOME == utils.WATER/NB_INT_BIOME {
+		tileInfo = utils.GroundTextureInfo[m.MapArray[x][y]+m.currentFrameWater*NB_INT_WATER_ANIMATION]
+	}
 
 	err := renderer.Copy(
 		resourceManager.GetTexture(tileInfo.ImageKey),

@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/kingdoom/screens"
-	"github.com/veandco/go-sdl2/sdl"
+	"log"
 	"os"
+
+	"github.com/kingdoom/screens"
+	"github.com/veandco/go-sdl2/mix"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 type Window struct {
@@ -19,10 +22,26 @@ func NewWindow() *Window {
 }
 
 func (w *Window) Show(title string, width int32, height int32) {
+	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
+		panic(err)
+	}
+
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
 	defer sdl.Quit()
+
+	if err := mix.Init(mix.INIT_OGG); err != nil {
+		log.Println(err)
+		return
+	}
+	defer mix.Quit()
+
+	if err := mix.OpenAudio(22050, mix.DEFAULT_FORMAT, 2, 4096); err != nil {
+		log.Println(err)
+		return
+	}
+	defer mix.CloseAudio()
 
 	window, err := sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		width, height, sdl.WINDOW_SHOWN)

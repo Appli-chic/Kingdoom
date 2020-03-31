@@ -50,6 +50,7 @@ func (w *World) HandleEvents(event sdl.Event) bool {
 func (w *World) Update() {
 	w.player.Update()
 	w.centerCamera()
+	w.worldMap.Update()
 }
 
 func (w *World) centerCamera() {
