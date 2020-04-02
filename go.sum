@@ -1,8 +1,2 @@
-github.com/aquilax/go-perlin v0.0.0-20191229124216-0af9ce917c28 h1:iQUvYFmTKLXaDf3N0YfsJG5vgVtA1La82fHFDkpX5y4=
-github.com/aquilax/go-perlin v0.0.0-20191229124216-0af9ce917c28/go.mod h1:z9Rl7EM4BZY0Ikp2fEN1I5mKSOJ26HQpk0O2TBdN2HE=
-github.com/cjslep/noise v0.0.0-20160208164128-e99d7a54b992 h1:nRoSVesMnwMLSIKnAOl601SNNOlxLtYVQQOhyybpdx8=
-github.com/cjslep/noise v0.0.0-20160208164128-e99d7a54b992/go.mod h1:zU7gFTHFfwd+gDwN/QrrNcLl9dE2+ksT8ahpy7/3sEo=
-github.com/ojrac/opensimplex-go v1.0.1 h1:XslvpLP6XqQSATUtsOnGBYtFPw7FQ6h6y0ihjVeOLHo=
-github.com/ojrac/opensimplex-go v1.0.1/go.mod h1:MoSgj04tZpH8U0RefZabnHV2AbLgv/2mo3hLJtWqSEs=
 github.com/veandco/go-sdl2 v0.4.1 h1:HmSBvVmKWI8LAOeCfTTM8R33rMyPcs6U3o8n325c9Qg=
 github.com/veandco/go-sdl2 v0.4.1/go.mod h1:FB+kTpX9YTE+urhYiClnRzpOXbiWgaU3+5F2AB78DPg=

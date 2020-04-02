@@ -36,7 +36,7 @@ func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager
 		characterInfo,
 		&sdl.Point{X: x, Y: y},
 		&sdl.Point{X: x, Y: y},
-		10,
+		50,
 		DIRECTION_DEFAULT,
 		0,
 		100,

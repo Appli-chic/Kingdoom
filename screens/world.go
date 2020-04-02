@@ -13,7 +13,7 @@ type World struct {
 	resourceManager *managers.ResourceManager
 	renderer        *sdl.Renderer
 	worldMap        *Map
-	camera          *sdl.Rect
+	Camera          *sdl.Rect
 	player          *entities.Character
 }
 
@@ -30,6 +30,7 @@ func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, ren
 	// Loading textures
 	w.resourceManager.LoadTexture(utils.OUTSIDE1, renderer)
 	w.resourceManager.LoadTexture(utils.OUTSIDE2, renderer)
+	w.resourceManager.LoadTexture(utils.OUTSIDEB, renderer)
 
 	return w
 }
@@ -39,7 +40,7 @@ func (w *World) HandleEvents(event sdl.Event) bool {
 	case *sdl.MouseButtonEvent:
 		if t.State != sdl.PRESSED {
 			if t.Button == sdl.BUTTON_LEFT {
-				w.player.OnClickToMove(t, w.camera)
+				w.player.OnClickToMove(t, w.Camera)
 			}
 		}
 	}
@@ -54,28 +55,28 @@ func (w *World) Update() {
 }
 
 func (w *World) centerCamera() {
-	w.camera.X = int32(w.player.Pos.X) + w.player.GetWidth()/2 - w.camera.W/2
-	w.camera.Y = int32(w.player.Pos.Y) + w.player.GetHeight()/2 - w.camera.H/2
+	w.Camera.X = int32(w.player.Pos.X) + w.player.GetWidth()/2 - w.Camera.W/2
+	w.Camera.Y = int32(w.player.Pos.Y) + w.player.GetHeight()/2 - w.Camera.H/2
 
 	// Manage map corners
-	if w.camera.X < 1*TileSize {
-		w.camera.X = 1 * TileSize
+	if w.Camera.X < TileSize {
+		w.Camera.X = TileSize
 	}
 
-	if w.camera.Y < 1*TileSize {
-		w.camera.Y = 1 * TileSize
+	if w.Camera.Y < TileSize {
+		w.Camera.Y = TileSize
 	}
 
-	if w.camera.X+w.camera.W > int32(len(w.worldMap.MapArray)*TileSize)-1*TileSize {
-		w.camera.X = int32(len(w.worldMap.MapArray)*TileSize) - w.camera.W - 1*TileSize
+	if w.Camera.X+w.Camera.W > int32(len(w.worldMap.MapArray)*TileSize)-TileSize {
+		w.Camera.X = int32(len(w.worldMap.MapArray)*TileSize) - w.Camera.W - TileSize
 	}
 
-	if w.camera.Y+w.camera.H > int32(len(w.worldMap.MapArray[0])*TileSize)-1*TileSize {
-		w.camera.Y = int32(len(w.worldMap.MapArray[0])*TileSize) - w.camera.H - 1*TileSize
+	if w.Camera.Y+w.Camera.H > int32(len(w.worldMap.MapArray[0])*TileSize)-TileSize {
+		w.Camera.Y = int32(len(w.worldMap.MapArray[0])*TileSize) - w.Camera.H - TileSize
 	}
 }
 
 func (w *World) Render() {
-	w.worldMap.Render(w.camera, w.resourceManager, w.renderer)
-	w.player.Render(w.camera)
+	w.worldMap.Render(w.Camera, w.resourceManager, w.renderer)
+	w.player.Render(w.Camera)
 }

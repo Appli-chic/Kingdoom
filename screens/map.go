@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/aquilax/go-perlin"
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
@@ -19,6 +18,7 @@ const NB_INT_WATER_ANIMATION = 1000
 
 type Map struct {
 	MapArray          [][]int
+	MapElementArray   [][]int
 	currentFrameWater int
 	frameRateWater    uint32
 	oldTimeWater      uint32
@@ -31,8 +31,15 @@ func NewMap(width int, height int) *Map {
 		matrix[i] = rows[i*height : (i+1)*height]
 	}
 
+	matrixElement := make([][]int, width)
+	rowsElement := make([]int, width*height)
+	for i := 0; i < width; i++ {
+		matrixElement[i] = rowsElement[i*height : (i+1)*height]
+	}
+
 	m := &Map{
 		matrix,
+		matrixElement,
 		0,
 		150,
 		0,
@@ -265,31 +272,38 @@ func (m *Map) generateBiome(biome int, width int, height int) {
 	sizeX := r.Intn((width/3)-20) + 20
 
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
-	sizeY := r.Intn((width/3)-20) + 20
-
-	alpha := 2.
-	beta := 2.
-	n := 3
+	sizeY := r.Intn((height/3)-20) + 20
 
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
-	seed := int64(r.Int())
-	p := perlin.NewPerlin(alpha, beta, n, seed)
+	seedX := r.Intn(width-sizeX) + sizeX
 
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
-	seedX := r.Intn(width)
-
-	r = rand.New(rand.NewSource(time.Now().UnixNano()))
-	seedY := r.Intn(height)
+	seedY := r.Intn(height-sizeY) + sizeY
 
 	for x := seedX - sizeX; x < seedX+sizeX; x++ {
-		for y := seedY; y < seedY+sizeY; y++ {
+		for y := seedY - sizeY; y < seedY+sizeY; y++ {
 			if x < len(m.MapArray) && y < len(m.MapArray[0]) && x >= 0 && y >= 0 {
 				m.MapArray[x][y] = biome
 			}
 		}
 	}
+}
 
-	println(p.Noise2D(0/10, 0/10))
+func (m *Map) addElementToMap(element int, width int, height int) {
+	isPlaceAvailable := false
+
+	for !isPlaceAvailable {
+		r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		x := r.Intn(width)
+
+		r = rand.New(rand.NewSource(time.Now().UnixNano()))
+		y := r.Intn(height)
+
+		if m.MapArray[x][y] != utils.WATER && m.MapElementArray[x][y] == 0 {
+			m.MapElementArray[x][y] = element
+			isPlaceAvailable = true
+		}
+	}
 }
 
 func (m *Map) initMap(width int, height int) {
@@ -304,12 +318,16 @@ func (m *Map) initMap(width int, height int) {
 	// Create river
 	m.createRiver()
 
-	// Create the map
-	// for x := 0; x < len(m.MapArray); x++ {
-	// 	for y := 0; y < len(m.MapArray[x]); y++ {
-	// 	}
-	// }
+	// Add resources
+	nbTrees := width / 10
 
+	for i := 0; i < nbTrees; i++ {
+		m.addElementToMap(utils.TREE, width, height)
+	}
+
+	m.MapElementArray[10][10] = utils.TREE
+
+	// Round borders
 	m.roundBorders()
 }
 
@@ -355,6 +373,28 @@ func (m *Map) displaysTile(camera *sdl.Rect, resourceManager *managers.ResourceM
 	}
 }
 
+func (m *Map) displaysElement(camera *sdl.Rect, resourceManager *managers.ResourceManager,
+	renderer *sdl.Renderer, x int, y int) {
+	if m.MapElementArray[x][y] != 0 {
+		tileInfo := utils.GroundTextureInfo[m.MapElementArray[x][y]]
+
+		err := renderer.Copy(
+			resourceManager.GetTexture(tileInfo.ImageKey),
+			tileInfo.Src,
+			&sdl.Rect{
+				X: int32(TileSize*x) - camera.X,
+				Y: int32(TileSize*y) - camera.Y,
+				W: tileInfo.Src.W,
+				H: tileInfo.Src.H,
+			},
+		)
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to copy: %s\n", err)
+		}
+	}
+}
+
 func (m *Map) Render(camera *sdl.Rect, resourceManager *managers.ResourceManager,
 	renderer *sdl.Renderer) {
 	minX := int(camera.X/TileSize) - 2
@@ -378,9 +418,18 @@ func (m *Map) Render(camera *sdl.Rect, resourceManager *managers.ResourceManager
 		maxY = len(m.MapArray[0]) - 1
 	}
 
+	// Displays ground
 	for x := minX; x < maxX; x++ {
 		for y := minY; y < maxY; y++ {
 			m.displaysTile(camera, resourceManager, renderer, x, y)
 		}
 	}
+
+	// Displays elements
+	for x := minX; x < maxX; x++ {
+		for y := minY; y < maxY; y++ {
+			m.displaysElement(camera, resourceManager, renderer, x, y)
+		}
+	}
+
 }

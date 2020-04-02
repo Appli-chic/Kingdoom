@@ -22,6 +22,7 @@ func NewWindow() *Window {
 }
 
 func (w *Window) Show(title string, width int32, height int32) {
+	// Init SDL
 	if err := sdl.Init(sdl.INIT_AUDIO); err != nil {
 		panic(err)
 	}
@@ -31,6 +32,7 @@ func (w *Window) Show(title string, width int32, height int32) {
 	}
 	defer sdl.Quit()
 
+	// Load audio
 	if err := mix.Init(mix.INIT_OGG); err != nil {
 		log.Println(err)
 		return
@@ -43,6 +45,7 @@ func (w *Window) Show(title string, width int32, height int32) {
 	}
 	defer mix.CloseAudio()
 
+	// Create the window
 	window, err := sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		width, height, sdl.WINDOW_SHOWN)
 
@@ -51,6 +54,8 @@ func (w *Window) Show(title string, width int32, height int32) {
 	}
 
 	defer window.Destroy()
+
+	sdl.ShowCursor(sdl.DISABLE)
 
 	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
@@ -68,6 +73,7 @@ func (w *Window) Show(title string, width int32, height int32) {
 	var delay uint32
 	delay = 1000 / fps
 
+	// Main loop
 	running := true
 	for running {
 		frameStart := sdl.GetTicks()

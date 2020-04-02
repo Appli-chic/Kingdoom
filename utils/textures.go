@@ -10,9 +10,13 @@ const (
 	// Ground
 	OUTSIDE1 int = 0
 	OUTSIDE2 int = 1
+	OUTSIDEB int = 2
+
+	// Cursors
+	CURSORS int = 1000
 
 	// Characters
-	IMG_ACTOR1 int = 1000
+	IMG_ACTOR1 int = 100
 )
 
 // Ground texture keys
@@ -47,6 +51,9 @@ const (
 	WATER_CORNER_LEFT_BOTTOM  int = 51
 	WATER_CORNER_RIGHT_BOTTOM int = 52
 
+	// Map elements
+	TREE int = 10000
+
 	// Water animation
 	WATER2                     int = 1040
 	WATER2_PLAIN_LEFT          int = 1041
@@ -77,6 +84,12 @@ const (
 	WATER3_CORNER_RIGHT_BOTTOM int = 2052
 )
 
+// Cursor texture keys
+const (
+	NORMAL_CURSOR  int = 0
+	HARVEST_CURSOR int = 1
+)
+
 // Character texture keys
 const (
 	ACTOR1 int = 1000
@@ -86,6 +99,10 @@ var ImagesPath = map[int]string{
 	// Ground
 	OUTSIDE1: "assets/tileset/outside1.png",
 	OUTSIDE2: "assets/tileset/outside2.png",
+	OUTSIDEB: "assets/tileset/outsideB.png",
+
+	// Cursor
+	CURSORS: "assets/cursors/cursor.png",
 
 	// Characters
 	IMG_ACTOR1: "assets/character/actor1.png",
@@ -122,6 +139,9 @@ var GroundTextureInfo = map[int]*models.TextureInfo{
 	WATER_CORNER_LEFT_BOTTOM:  &models.TextureInfo{Key: WATER_CORNER_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 768, Y: 48, W: 48, H: 48}},
 	WATER_CORNER_RIGHT_BOTTOM: &models.TextureInfo{Key: WATER_CORNER_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 816, Y: 48, W: 48, H: 48}},
 
+	// Map elements
+	TREE: &models.TextureInfo{Key: TREE, ImageKey: OUTSIDEB, Src: &sdl.Rect{X: 240, Y: 528, W: 48, H: 96}},
+
 	// Water animation
 	WATER2:                     &models.TextureInfo{Key: WATER2, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 120, Y: 72, W: 48, H: 48}},
 	WATER2_PLAIN_LEFT:          &models.TextureInfo{Key: WATER2_PLAIN_LEFT, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 96, Y: 72, W: 48, H: 48}},
@@ -150,6 +170,11 @@ var GroundTextureInfo = map[int]*models.TextureInfo{
 	WATER3_CORNER_RIGHT_UP:     &models.TextureInfo{Key: WATER3_CORNER_RIGHT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 1008, W: 48, H: 48}},
 	WATER3_CORNER_LEFT_BOTTOM:  &models.TextureInfo{Key: WATER3_CORNER_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 960, Y: 48, W: 48, H: 48}},
 	WATER3_CORNER_RIGHT_BOTTOM: &models.TextureInfo{Key: WATER3_CORNER_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 1008, Y: 48, W: 48, H: 48}},
+}
+
+var CursorTextureInfo = map[int]*models.TextureInfo{
+	NORMAL_CURSOR:  &models.TextureInfo{Key: NORMAL_CURSOR, ImageKey: CURSORS, Src: &sdl.Rect{W: 24, H: 24}},
+	HARVEST_CURSOR: &models.TextureInfo{Key: HARVEST_CURSOR, ImageKey: CURSORS, Src: &sdl.Rect{X: 24, W: 24, H: 24}},
 }
 
 var CharacterTextureInfo = map[int]*models.CharacterInfo{
