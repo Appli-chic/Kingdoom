@@ -5,6 +5,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const TileSize = 48
+
 // Image keys
 const (
 	// Ground
@@ -52,7 +54,8 @@ const (
 	WATER_CORNER_RIGHT_BOTTOM int = 52
 
 	// Map elements
-	TREE int = 10000
+	TREE1 int = 10000
+	TREE2 int = 10001
 
 	// Water animation
 	WATER2                     int = 1040
@@ -140,7 +143,8 @@ var GroundTextureInfo = map[int]*models.TextureInfo{
 	WATER_CORNER_RIGHT_BOTTOM: &models.TextureInfo{Key: WATER_CORNER_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 816, Y: 48, W: 48, H: 48}},
 
 	// Map elements
-	TREE: &models.TextureInfo{Key: TREE, ImageKey: OUTSIDEB, Src: &sdl.Rect{X: 240, Y: 528, W: 48, H: 96}},
+	TREE1: &models.TextureInfo{Key: TREE1, ImageKey: OUTSIDEB, Src: &sdl.Rect{X: 240, Y: 528, W: 48, H: 48}},
+	TREE2: &models.TextureInfo{Key: TREE2, ImageKey: OUTSIDEB, Src: &sdl.Rect{X: 240, Y: 576, W: 48, H: 48}},
 
 	// Water animation
 	WATER2:                     &models.TextureInfo{Key: WATER2, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 120, Y: 72, W: 48, H: 48}},
@@ -170,6 +174,11 @@ var GroundTextureInfo = map[int]*models.TextureInfo{
 	WATER3_CORNER_RIGHT_UP:     &models.TextureInfo{Key: WATER3_CORNER_RIGHT_UP, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 1008, W: 48, H: 48}},
 	WATER3_CORNER_LEFT_BOTTOM:  &models.TextureInfo{Key: WATER3_CORNER_LEFT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 960, Y: 48, W: 48, H: 48}},
 	WATER3_CORNER_RIGHT_BOTTOM: &models.TextureInfo{Key: WATER3_CORNER_RIGHT_BOTTOM, ImageKey: OUTSIDE1, Src: &sdl.Rect{X: 1008, Y: 48, W: 48, H: 48}},
+}
+
+var ResourceTextureInfo = map[int]*models.ResourceInfo{
+	TREE1: &models.ResourceInfo{Key: TREE1, ImageKey: OUTSIDEB, Src: &sdl.Rect{X: 240, Y: 528, W: 48, H: 48}, ResourceId: models.WOOD},
+	TREE2: &models.ResourceInfo{Key: TREE2, ImageKey: OUTSIDEB, Src: &sdl.Rect{X: 240, Y: 576, W: 48, H: 48}, ResourceId: models.WOOD},
 }
 
 var CursorTextureInfo = map[int]*models.TextureInfo{

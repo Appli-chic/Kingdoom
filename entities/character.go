@@ -5,8 +5,11 @@ import (
 
 	"github.com/kingdoom/managers"
 	"github.com/kingdoom/models"
+	"github.com/kingdoom/utils"
 	"github.com/veandco/go-sdl2/sdl"
 )
+
+const HEIGHT_RECT_HARVESTING = 20
 
 const (
 	DIRECTION_DEFAULT = 0
@@ -17,29 +20,41 @@ const (
 )
 
 type Character struct {
-	renderer        *sdl.Renderer
-	resourceManager *managers.ResourceManager
-	CharacterInfo   *models.CharacterInfo
-	Pos             *sdl.Point
-	posToGo         *sdl.Point
-	speed           float64
-	direction       int
-	currentFrame    int
-	frameRate       uint32
-	oldTime         uint32
+	isPlayer            bool
+	renderer            *sdl.Renderer
+	resourceManager     *managers.ResourceManager
+	CharacterInfo       *models.CharacterInfo
+	Inventory           *Inventory
+	Pos                 *sdl.Point
+	posToGo             *sdl.Point
+	speed               float64
+	direction           int
+	currentFrame        int
+	frameRate           uint32
+	oldTime             uint32
+	isHarvesting        bool
+	resourceHarvesting  int
+	harvestingFrameRate uint32
+	harvestingOldTime   uint32
 }
 
-func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager, characterInfo *models.CharacterInfo, x int32, y int32) *Character {
+func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager, characterInfo *models.CharacterInfo, x int32, y int32, isPlayer bool) *Character {
 	c := &Character{
+		isPlayer,
 		renderer,
 		resourceManager,
 		characterInfo,
+		NewInventory(),
 		&sdl.Point{X: x, Y: y},
 		&sdl.Point{X: x, Y: y},
-		50,
+		5,
 		DIRECTION_DEFAULT,
 		0,
 		100,
+		0,
+		false,
+		-1,
+		1000,
 		0,
 	}
 
@@ -129,7 +144,7 @@ func (c *Character) animate() {
 }
 
 func (c *Character) move() {
-	if c.posToGo.X != c.Pos.X && c.posToGo.Y != c.Pos.Y {
+	if c.isMoving() {
 		dx := float64(c.Pos.X - c.posToGo.X)
 		dy := float64(c.Pos.Y - c.posToGo.Y)
 
@@ -159,14 +174,91 @@ func (c *Character) move() {
 	}
 }
 
-func (c *Character) Update() {
+func (c *Character) isMoving() bool {
+	if c.posToGo.X != c.Pos.X && c.posToGo.Y != c.Pos.Y {
+		return true
+	} else {
+		return false
+	}
+}
+
+func (c *Character) harvesting(mapResourceArray [][]int) {
+	x := (c.Pos.X + c.GetWidth()/2) / utils.TileSize
+	y := (c.Pos.Y + c.GetHeight()/2) / utils.TileSize
+
+	if x < 1 {
+		x = 1
+	}
+
+	if y < 1 {
+		y = 1
+	}
+
+	if x > int32(len(mapResourceArray)-1) {
+		x = int32(len(mapResourceArray) - 1)
+	}
+
+	if y > int32(len(mapResourceArray[0])-1) {
+		y = int32(len(mapResourceArray[0]) - 1)
+	}
+
+	if mapResourceArray[x][y] != 0 && !c.isMoving() {
+		if c.isHarvesting {
+			if c.harvestingOldTime+c.harvestingFrameRate > sdl.GetTicks() {
+				return
+			}
+
+			c.harvestingOldTime = sdl.GetTicks()
+			c.Inventory.addResource(c.resourceHarvesting, 1)
+		} else {
+			c.isHarvesting = true
+			c.resourceHarvesting = utils.ResourceTextureInfo[mapResourceArray[x][y]].ResourceId
+			c.Inventory.addResource(c.resourceHarvesting, 0)
+		}
+	} else {
+		c.isHarvesting = false
+		c.resourceHarvesting = -1
+	}
+}
+
+func (c *Character) Update(MapResourceArray [][]int) {
 	c.move()
+	c.harvesting(MapResourceArray)
 }
 
 func (c *Character) Render(camera *sdl.Rect) {
+	// Render harvesting
+	if c.isHarvesting && c.isPlayer &&
+		c.Inventory.resources[c.resourceHarvesting].amount < c.Inventory.resources[c.resourceHarvesting].maxAmount {
+
+		c.renderer.SetDrawColor(255, 255, 255, 255)
+		c.renderer.DrawRect(&sdl.Rect{
+			X: c.Pos.X - camera.X,
+			Y: c.Pos.Y - camera.Y - HEIGHT_RECT_HARVESTING,
+			H: HEIGHT_RECT_HARVESTING,
+			W: c.CharacterInfo.DefaultTexture.W,
+		})
+
+		percentWidthHarvesting := float64(c.Inventory.resources[c.resourceHarvesting].amount) /
+			float64(c.Inventory.resources[c.resourceHarvesting].maxAmount)
+
+		c.renderer.FillRect(&sdl.Rect{
+			X: c.Pos.X - camera.X,
+			Y: c.Pos.Y - camera.Y - HEIGHT_RECT_HARVESTING,
+			H: HEIGHT_RECT_HARVESTING,
+			W: int32(float64(c.CharacterInfo.DefaultTexture.W) * percentWidthHarvesting),
+		})
+	}
+
+	// Render the character
 	c.renderer.Copy(
 		c.resourceManager.GetTexture(c.CharacterInfo.ImageKey),
 		c.getCurrentTextureRect(),
-		&sdl.Rect{X: c.Pos.X - camera.X, Y: c.Pos.Y - camera.Y, W: c.CharacterInfo.DefaultTexture.W, H: c.CharacterInfo.DefaultTexture.H},
+		&sdl.Rect{
+			X: c.Pos.X - camera.X,
+			Y: c.Pos.Y - camera.Y,
+			W: c.CharacterInfo.DefaultTexture.W,
+			H: c.CharacterInfo.DefaultTexture.H,
+		},
 	)
 }

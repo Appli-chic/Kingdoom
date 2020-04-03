@@ -58,10 +58,10 @@ func (g *GameScreen) HandleEvents(event sdl.Event) bool {
 }
 
 func (g *GameScreen) updateMouse() {
-	x := int(float64(g.cursorPosition.X)/float64(TileSize) + float64(g.world.Camera.X)/float64(TileSize))
-	y := int(float64(g.cursorPosition.Y)/float64(TileSize) + float64(g.world.Camera.Y)/float64(TileSize))
+	x := int(float64(g.cursorPosition.X)/float64(utils.TileSize) + float64(g.world.Camera.X)/float64(utils.TileSize))
+	y := int(float64(g.cursorPosition.Y)/float64(utils.TileSize) + float64(g.world.Camera.Y)/float64(utils.TileSize))
 
-	if g.world.worldMap.MapElementArray[x][y] != 0 {
+	if g.world.worldMap.MapResourceArray[x][y] != 0 {
 		g.currentCursor = utils.HARVEST_CURSOR
 	} else {
 		g.currentCursor = utils.NORMAL_CURSOR

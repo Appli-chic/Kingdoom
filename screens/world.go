@@ -7,8 +7,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const TileSize = 48
-
 type World struct {
 	resourceManager *managers.ResourceManager
 	renderer        *sdl.Renderer
@@ -24,7 +22,7 @@ func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, ren
 		renderer,
 		NewMap(width, height),
 		&sdl.Rect{W: windowWidth, H: windowHeight},
-		entities.NewPlayer(renderer, resourceManager, utils.CharacterTextureInfo[utils.ACTOR1], 50, 50),
+		entities.NewPlayer(renderer, resourceManager, utils.CharacterTextureInfo[utils.ACTOR1], 50, 50, true),
 	}
 
 	// Loading textures
@@ -49,7 +47,7 @@ func (w *World) HandleEvents(event sdl.Event) bool {
 }
 
 func (w *World) Update() {
-	w.player.Update()
+	w.player.Update(w.worldMap.MapResourceArray)
 	w.centerCamera()
 	w.worldMap.Update()
 }
@@ -59,20 +57,20 @@ func (w *World) centerCamera() {
 	w.Camera.Y = int32(w.player.Pos.Y) + w.player.GetHeight()/2 - w.Camera.H/2
 
 	// Manage map corners
-	if w.Camera.X < TileSize {
-		w.Camera.X = TileSize
+	if w.Camera.X < utils.TileSize {
+		w.Camera.X = utils.TileSize
 	}
 
-	if w.Camera.Y < TileSize {
-		w.Camera.Y = TileSize
+	if w.Camera.Y < utils.TileSize {
+		w.Camera.Y = utils.TileSize
 	}
 
-	if w.Camera.X+w.Camera.W > int32(len(w.worldMap.MapArray)*TileSize)-TileSize {
-		w.Camera.X = int32(len(w.worldMap.MapArray)*TileSize) - w.Camera.W - TileSize
+	if w.Camera.X+w.Camera.W > int32(len(w.worldMap.MapArray)*utils.TileSize)-utils.TileSize {
+		w.Camera.X = int32(len(w.worldMap.MapArray)*utils.TileSize) - w.Camera.W - utils.TileSize
 	}
 
-	if w.Camera.Y+w.Camera.H > int32(len(w.worldMap.MapArray[0])*TileSize)-TileSize {
-		w.Camera.Y = int32(len(w.worldMap.MapArray[0])*TileSize) - w.Camera.H - TileSize
+	if w.Camera.Y+w.Camera.H > int32(len(w.worldMap.MapArray[0])*utils.TileSize)-utils.TileSize {
+		w.Camera.Y = int32(len(w.worldMap.MapArray[0])*utils.TileSize) - w.Camera.H - utils.TileSize
 	}
 }
 

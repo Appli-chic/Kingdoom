@@ -18,7 +18,7 @@ const NB_INT_WATER_ANIMATION = 1000
 
 type Map struct {
 	MapArray          [][]int
-	MapElementArray   [][]int
+	MapResourceArray  [][]int
 	currentFrameWater int
 	frameRateWater    uint32
 	oldTimeWater      uint32
@@ -289,21 +289,40 @@ func (m *Map) generateBiome(biome int, width int, height int) {
 	}
 }
 
-func (m *Map) addElementToMap(element int, width int, height int) {
+func (m *Map) addElementToMap(element int, width int, height int) (int, int) {
 	isPlaceAvailable := false
+	x := 0
+	y := 0
 
 	for !isPlaceAvailable {
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		x := r.Intn(width)
+		x = r.Intn(width - 1)
 
 		r = rand.New(rand.NewSource(time.Now().UnixNano()))
-		y := r.Intn(height)
+		y = r.Intn(height - 1)
 
-		if m.MapArray[x][y] != utils.WATER && m.MapElementArray[x][y] == 0 {
-			m.MapElementArray[x][y] = element
+		if m.MapArray[x][y] != utils.WATER && m.MapResourceArray[x][y] == 0 {
+			m.MapResourceArray[x][y] = element
 			isPlaceAvailable = true
 		}
 	}
+
+	return x, y
+}
+
+func (m *Map) addTrees(width int, height int) {
+	nbTrees := width / 10
+
+	for i := 0; i < nbTrees; i++ {
+		x, y := m.addElementToMap(utils.TREE1, width, height)
+		m.MapResourceArray[x][y+1] = utils.TREE2
+	}
+
+	m.MapResourceArray[25][25] = utils.TREE1
+	m.MapResourceArray[25][26] = utils.TREE2
+
+	m.MapResourceArray[10][10] = utils.TREE1
+	m.MapResourceArray[10][11] = utils.TREE2
 }
 
 func (m *Map) initMap(width int, height int) {
@@ -319,13 +338,7 @@ func (m *Map) initMap(width int, height int) {
 	m.createRiver()
 
 	// Add resources
-	nbTrees := width / 10
-
-	for i := 0; i < nbTrees; i++ {
-		m.addElementToMap(utils.TREE, width, height)
-	}
-
-	m.MapElementArray[10][10] = utils.TREE
+	m.addTrees(width, height)
 
 	// Round borders
 	m.roundBorders()
@@ -361,10 +374,10 @@ func (m *Map) displaysTile(camera *sdl.Rect, resourceManager *managers.ResourceM
 		resourceManager.GetTexture(tileInfo.ImageKey),
 		tileInfo.Src,
 		&sdl.Rect{
-			X: int32(TileSize*x) - camera.X,
-			Y: int32(TileSize*y) - camera.Y,
-			W: TileSize,
-			H: TileSize,
+			X: int32(utils.TileSize*x) - camera.X,
+			Y: int32(utils.TileSize*y) - camera.Y,
+			W: utils.TileSize,
+			H: utils.TileSize,
 		},
 	)
 
@@ -373,17 +386,17 @@ func (m *Map) displaysTile(camera *sdl.Rect, resourceManager *managers.ResourceM
 	}
 }
 
-func (m *Map) displaysElement(camera *sdl.Rect, resourceManager *managers.ResourceManager,
+func (m *Map) displaysResource(camera *sdl.Rect, resourceManager *managers.ResourceManager,
 	renderer *sdl.Renderer, x int, y int) {
-	if m.MapElementArray[x][y] != 0 {
-		tileInfo := utils.GroundTextureInfo[m.MapElementArray[x][y]]
+	if m.MapResourceArray[x][y] != 0 {
+		tileInfo := utils.ResourceTextureInfo[m.MapResourceArray[x][y]]
 
 		err := renderer.Copy(
 			resourceManager.GetTexture(tileInfo.ImageKey),
 			tileInfo.Src,
 			&sdl.Rect{
-				X: int32(TileSize*x) - camera.X,
-				Y: int32(TileSize*y) - camera.Y,
+				X: int32(utils.TileSize*x) - camera.X,
+				Y: int32(utils.TileSize*y) - camera.Y,
 				W: tileInfo.Src.W,
 				H: tileInfo.Src.H,
 			},
@@ -397,10 +410,10 @@ func (m *Map) displaysElement(camera *sdl.Rect, resourceManager *managers.Resour
 
 func (m *Map) Render(camera *sdl.Rect, resourceManager *managers.ResourceManager,
 	renderer *sdl.Renderer) {
-	minX := int(camera.X/TileSize) - 2
-	maxX := int((camera.X+camera.W)/TileSize) + 2
-	minY := int(camera.Y/TileSize) - 2
-	maxY := int((camera.Y+camera.H)/TileSize) + 2
+	minX := int(camera.X/utils.TileSize) - 2
+	maxX := int((camera.X+camera.W)/utils.TileSize) + 2
+	minY := int(camera.Y/utils.TileSize) - 2
+	maxY := int((camera.Y+camera.H)/utils.TileSize) + 2
 
 	if minX < 1 {
 		minX = 1
@@ -425,10 +438,10 @@ func (m *Map) Render(camera *sdl.Rect, resourceManager *managers.ResourceManager
 		}
 	}
 
-	// Displays elements
+	// Displays resources
 	for x := minX; x < maxX; x++ {
 		for y := minY; y < maxY; y++ {
-			m.displaysElement(camera, resourceManager, renderer, x, y)
+			m.displaysResource(camera, resourceManager, renderer, x, y)
 		}
 	}
 
