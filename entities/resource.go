@@ -17,7 +17,11 @@ func NewResource(index int) *Resource {
 func (r *Resource) add(amount int) {
 	r.amount += amount
 
-	if r.amount > r.maxAmount {
+	if r.amount >= r.maxAmount {
 		r.amount = r.maxAmount
 	}
+}
+
+func (r *Resource) isFull() bool {
+	return r.amount == r.maxAmount
 }

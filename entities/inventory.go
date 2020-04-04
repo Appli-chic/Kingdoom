@@ -20,3 +20,7 @@ func (i *Inventory) addResource(index int, amount int) {
 		i.resources[index].add(amount)
 	}
 }
+
+func (i *Inventory) isResourceFull(index int) bool {
+	return i.resources[index].isFull()
+}

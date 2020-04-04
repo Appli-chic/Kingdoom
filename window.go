@@ -8,6 +8,7 @@ import (
 	"github.com/kingdoom/screens"
 	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 type Window struct {
@@ -45,6 +46,12 @@ func (w *Window) Show(title string, width int32, height int32) {
 	}
 	defer mix.CloseAudio()
 
+	// Load font
+	if err := ttf.Init(); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to initialize TTF: %s\n", err)
+		return
+	}
+
 	// Create the window
 	window, err := sdl.CreateWindow(title, sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		width, height, sdl.WINDOW_SHOWN)
@@ -55,14 +62,19 @@ func (w *Window) Show(title string, width int32, height int32) {
 
 	defer window.Destroy()
 
-	sdl.ShowCursor(sdl.DISABLE)
-
 	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", err)
 		panic(err)
 	}
 	defer renderer.Destroy()
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to get window surface: %s\n", err)
+		return
+	}
+
+	sdl.ShowCursor(sdl.DISABLE)
 
 	w.window = window
 	w.renderer = renderer

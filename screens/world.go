@@ -25,11 +25,6 @@ func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, ren
 		entities.NewPlayer(renderer, resourceManager, utils.CharacterTextureInfo[utils.ACTOR1], 50, 50, true),
 	}
 
-	// Loading textures
-	w.resourceManager.LoadTexture(utils.OUTSIDE1, renderer)
-	w.resourceManager.LoadTexture(utils.OUTSIDE2, renderer)
-	w.resourceManager.LoadTexture(utils.OUTSIDEB, renderer)
-
 	return w
 }
 

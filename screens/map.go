@@ -291,15 +291,15 @@ func (m *Map) generateBiome(biome int, width int, height int) {
 
 func (m *Map) addElementToMap(element int, width int, height int) (int, int) {
 	isPlaceAvailable := false
-	x := 0
-	y := 0
+	x := 1
+	y := 1
 
 	for !isPlaceAvailable {
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		x = r.Intn(width - 1)
+		x = r.Intn((width-1)-1) + 1
 
 		r = rand.New(rand.NewSource(time.Now().UnixNano()))
-		y = r.Intn(height - 1)
+		y = r.Intn((height-1)-1) + 1
 
 		if m.MapArray[x][y] != utils.WATER && m.MapResourceArray[x][y] == 0 {
 			m.MapResourceArray[x][y] = element
@@ -311,18 +311,12 @@ func (m *Map) addElementToMap(element int, width int, height int) (int, int) {
 }
 
 func (m *Map) addTrees(width int, height int) {
-	nbTrees := width / 10
+	nbTrees := width / 15
 
 	for i := 0; i < nbTrees; i++ {
 		x, y := m.addElementToMap(utils.TREE1, width, height)
 		m.MapResourceArray[x][y+1] = utils.TREE2
 	}
-
-	m.MapResourceArray[25][25] = utils.TREE1
-	m.MapResourceArray[25][26] = utils.TREE2
-
-	m.MapResourceArray[10][10] = utils.TREE1
-	m.MapResourceArray[10][11] = utils.TREE2
 }
 
 func (m *Map) initMap(width int, height int) {

@@ -30,9 +30,19 @@ func NewGameScreen(window *sdl.Window, renderer *sdl.Renderer) *GameScreen {
 		&sdl.Point{},
 	}
 
+	// Loading textures
+	g.resourceManager.LoadTexture(utils.OUTSIDE1, renderer)
+	g.resourceManager.LoadTexture(utils.OUTSIDE2, renderer)
+	g.resourceManager.LoadTexture(utils.OUTSIDEB, renderer)
+
 	// Load players textures
 	g.resourceManager.LoadTexture(utils.IMG_ACTOR1, renderer)
+
+	// Load cursor textures
 	g.resourceManager.LoadTexture(utils.CURSORS, renderer)
+
+	// Load fonts
+	g.resourceManager.LoadFont(utils.FONT_FIRACODE, 18)
 
 	// Load audios
 	g.resourceManager.LoadAudio(utils.THEME1)

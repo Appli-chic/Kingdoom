@@ -25,6 +25,7 @@ type Character struct {
 	resourceManager     *managers.ResourceManager
 	CharacterInfo       *models.CharacterInfo
 	Inventory           *Inventory
+	message             *Message
 	Pos                 *sdl.Point
 	posToGo             *sdl.Point
 	speed               float64
@@ -45,6 +46,7 @@ func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager
 		resourceManager,
 		characterInfo,
 		NewInventory(),
+		nil,
 		&sdl.Point{X: x, Y: y},
 		&sdl.Point{X: x, Y: y},
 		5,
@@ -203,13 +205,20 @@ func (c *Character) harvesting(mapResourceArray [][]int) {
 	}
 
 	if mapResourceArray[x][y] != 0 && !c.isMoving() {
-		if c.isHarvesting {
+		if c.isHarvesting && c.resourceHarvesting != -1 && !c.Inventory.isResourceFull(c.resourceHarvesting) {
 			if c.harvestingOldTime+c.harvestingFrameRate > sdl.GetTicks() {
 				return
 			}
 
 			c.harvestingOldTime = sdl.GetTicks()
 			c.Inventory.addResource(c.resourceHarvesting, 1)
+
+			if c.Inventory.isResourceFull(c.resourceHarvesting) {
+				// Show a message
+				font := c.resourceManager.GetFont(utils.FONT_FIRACODE, 18)
+				c.message = NewMessage("I'm tired now, I need some sleep !", font)
+				c.isHarvesting = false
+			}
 		} else {
 			c.isHarvesting = true
 			c.resourceHarvesting = utils.ResourceTextureInfo[mapResourceArray[x][y]].ResourceId
@@ -218,23 +227,47 @@ func (c *Character) harvesting(mapResourceArray [][]int) {
 	} else {
 		c.isHarvesting = false
 		c.resourceHarvesting = -1
+		c.harvestingOldTime = 0
 	}
 }
 
 func (c *Character) Update(MapResourceArray [][]int) {
 	c.move()
 	c.harvesting(MapResourceArray)
+
+	// Update messages display
+	if c.message != nil {
+		c.message.update()
+
+		// Delete the message if last too long
+		if c.message.doesMustBeDeleted() {
+			c.message = nil
+		}
+	}
 }
 
 func (c *Character) Render(camera *sdl.Rect) {
-	// Render harvesting
-	if c.isHarvesting && c.isPlayer &&
-		c.Inventory.resources[c.resourceHarvesting].amount < c.Inventory.resources[c.resourceHarvesting].maxAmount {
+	x := c.Pos.X - camera.X
+	y := c.Pos.Y - camera.Y
 
+	// Render the character
+	c.renderer.Copy(
+		c.resourceManager.GetTexture(c.CharacterInfo.ImageKey),
+		c.getCurrentTextureRect(),
+		&sdl.Rect{
+			X: x,
+			Y: y,
+			W: c.CharacterInfo.DefaultTexture.W,
+			H: c.CharacterInfo.DefaultTexture.H,
+		},
+	)
+
+	// Render harvesting
+	if c.isHarvesting && c.isPlayer && !c.Inventory.isResourceFull(c.resourceHarvesting) {
 		c.renderer.SetDrawColor(255, 255, 255, 255)
 		c.renderer.DrawRect(&sdl.Rect{
-			X: c.Pos.X - camera.X,
-			Y: c.Pos.Y - camera.Y - HEIGHT_RECT_HARVESTING,
+			X: x,
+			Y: y - HEIGHT_RECT_HARVESTING,
 			H: HEIGHT_RECT_HARVESTING,
 			W: c.CharacterInfo.DefaultTexture.W,
 		})
@@ -243,22 +276,15 @@ func (c *Character) Render(camera *sdl.Rect) {
 			float64(c.Inventory.resources[c.resourceHarvesting].maxAmount)
 
 		c.renderer.FillRect(&sdl.Rect{
-			X: c.Pos.X - camera.X,
-			Y: c.Pos.Y - camera.Y - HEIGHT_RECT_HARVESTING,
+			X: x,
+			Y: y - HEIGHT_RECT_HARVESTING,
 			H: HEIGHT_RECT_HARVESTING,
 			W: int32(float64(c.CharacterInfo.DefaultTexture.W) * percentWidthHarvesting),
 		})
 	}
 
-	// Render the character
-	c.renderer.Copy(
-		c.resourceManager.GetTexture(c.CharacterInfo.ImageKey),
-		c.getCurrentTextureRect(),
-		&sdl.Rect{
-			X: c.Pos.X - camera.X,
-			Y: c.Pos.Y - camera.Y,
-			W: c.CharacterInfo.DefaultTexture.W,
-			H: c.CharacterInfo.DefaultTexture.H,
-		},
-	)
+	// Display the message
+	if c.message != nil {
+		c.message.render(x, y-HEIGHT_RECT_HARVESTING, c.GetWidth(), c.renderer)
+	}
 }
