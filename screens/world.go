@@ -28,11 +28,11 @@ func NewWorld(window *sdl.Window, resourceManager *managers.ResourceManager, ren
 	return w
 }
 
-func (w *World) HandleEvents(event sdl.Event) bool {
+func (w *World) HandleEvents(event sdl.Event, isInterfaceClick bool) bool {
 	switch t := event.(type) {
 	case *sdl.MouseButtonEvent:
 		if t.State != sdl.PRESSED {
-			if t.Button == sdl.BUTTON_LEFT {
+			if t.Button == sdl.BUTTON_LEFT && !isInterfaceClick {
 				w.player.OnClickToMove(t, w.Camera)
 			}
 		}
@@ -42,7 +42,7 @@ func (w *World) HandleEvents(event sdl.Event) bool {
 }
 
 func (w *World) Update() {
-	w.player.Update(w.worldMap.MapResourceArray)
+	w.player.Update(w.worldMap.MapResourceArray, w.Camera)
 	w.centerCamera()
 	w.worldMap.Update()
 }

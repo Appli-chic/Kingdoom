@@ -14,11 +14,14 @@ const (
 	OUTSIDE2 int = 1
 	OUTSIDEB int = 2
 
-	// Cursors
-	CURSORS int = 1000
-
 	// Characters
 	IMG_ACTOR1 int = 100
+
+	// Buildings
+	SAWMILL int = 1000
+
+	// Cursors
+	CURSORS int = 10000
 )
 
 // Ground texture keys
@@ -87,15 +90,16 @@ const (
 	WATER3_CORNER_RIGHT_BOTTOM int = 2052
 )
 
-// Cursor texture keys
-const (
-	NORMAL_CURSOR  int = 0
-	HARVEST_CURSOR int = 1
-)
-
 // Character texture keys
 const (
-	ACTOR1 int = 1000
+	ACTOR1 int = 0
+)
+
+// Cursor texture keys
+const (
+	NORMAL_CURSOR      int = 0
+	HARVEST_CURSOR     int = 1
+	BUILDING_OK_CURSOR int = 2
 )
 
 var ImagesPath = map[int]string{
@@ -104,11 +108,14 @@ var ImagesPath = map[int]string{
 	OUTSIDE2: "assets/tileset/outside2.png",
 	OUTSIDEB: "assets/tileset/outsideB.png",
 
-	// Cursor
-	CURSORS: "assets/cursors/cursor.png",
-
 	// Characters
 	IMG_ACTOR1: "assets/character/actor1.png",
+
+	// Buildings
+	SAWMILL: "assets/building/sawmill.png",
+
+	// Cursor
+	CURSORS: "assets/cursors/cursor.png",
 }
 
 var GroundTextureInfo = map[int]*models.TextureInfo{
@@ -181,11 +188,6 @@ var ResourceTextureInfo = map[int]*models.ResourceInfo{
 	TREE2: &models.ResourceInfo{Key: TREE2, ImageKey: OUTSIDEB, Src: &sdl.Rect{X: 240, Y: 576, W: 48, H: 48}, ResourceId: models.WOOD},
 }
 
-var CursorTextureInfo = map[int]*models.TextureInfo{
-	NORMAL_CURSOR:  &models.TextureInfo{Key: NORMAL_CURSOR, ImageKey: CURSORS, Src: &sdl.Rect{W: 24, H: 24}},
-	HARVEST_CURSOR: &models.TextureInfo{Key: HARVEST_CURSOR, ImageKey: CURSORS, Src: &sdl.Rect{X: 24, W: 24, H: 24}},
-}
-
 var CharacterTextureInfo = map[int]*models.CharacterInfo{
 	ACTOR1: &models.CharacterInfo{
 		Key:            ACTOR1,
@@ -212,4 +214,26 @@ var CharacterTextureInfo = map[int]*models.CharacterInfo{
 			&sdl.Rect{X: 96, Y: 144, W: 48, H: 48},
 		},
 	},
+}
+
+var BuildingTextureInfo = map[int]*models.BuildingInfo{
+	SAWMILL: &models.BuildingInfo{ImageKey: SAWMILL,
+		Width:  64,
+		Height: 64,
+		Health: 300,
+		Textures: []*sdl.Rect{
+			&sdl.Rect{X: 0, Y: 0, W: 64, H: 64},
+			&sdl.Rect{X: 0, Y: 64, W: 64, H: 64},
+			&sdl.Rect{X: 0, Y: 128, W: 64, H: 64},
+			&sdl.Rect{X: 0, Y: 192, W: 64, H: 64},
+			&sdl.Rect{X: 0, Y: 256, W: 64, H: 64},
+			&sdl.Rect{X: 0, Y: 320, W: 64, H: 64},
+		},
+	},
+}
+
+var CursorTextureInfo = map[int]*models.TextureInfo{
+	NORMAL_CURSOR:      &models.TextureInfo{Key: NORMAL_CURSOR, ImageKey: CURSORS, Src: &sdl.Rect{W: 24, H: 24}},
+	HARVEST_CURSOR:     &models.TextureInfo{Key: HARVEST_CURSOR, ImageKey: CURSORS, Src: &sdl.Rect{X: 24, W: 24, H: 24}},
+	BUILDING_OK_CURSOR: &models.TextureInfo{Key: BUILDING_OK_CURSOR, ImageKey: CURSORS, Src: &sdl.Rect{X: 48, W: 24, H: 24}},
 }

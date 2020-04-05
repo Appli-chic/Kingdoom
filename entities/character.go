@@ -9,7 +9,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const HEIGHT_RECT_HARVESTING = 20
+const HEIGHT_RECT_LIFE = 10
 
 const (
 	DIRECTION_DEFAULT = 0
@@ -37,6 +37,8 @@ type Character struct {
 	resourceHarvesting  int
 	harvestingFrameRate uint32
 	harvestingOldTime   uint32
+	building            *Building
+	isInBuilding        bool
 }
 
 func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager, characterInfo *models.CharacterInfo, x int32, y int32, isPlayer bool) *Character {
@@ -58,6 +60,8 @@ func NewPlayer(renderer *sdl.Renderer, resourceManager *managers.ResourceManager
 		-1,
 		1000,
 		0,
+		nil,
+		false,
 	}
 
 	return c
@@ -76,6 +80,19 @@ func (c *Character) OnClickToMove(mouse *sdl.MouseButtonEvent, camera *sdl.Rect)
 	c.posToGo.Y = mouse.Y + camera.Y - c.CharacterInfo.DefaultTexture.H/2
 
 	return true
+}
+
+func (c *Character) Build(buildingInfo *models.BuildingInfo, pos *sdl.Point) {
+	c.isInBuilding = false
+
+	newPos := &sdl.Point{}
+	newPos.X = pos.X - buildingInfo.Width/2
+	newPos.Y = pos.Y - buildingInfo.Height/2
+
+	c.building = NewBuilding(c.resourceManager, buildingInfo, newPos)
+
+	c.posToGo.X = pos.X - buildingInfo.Width/4
+	c.posToGo.Y = pos.Y - buildingInfo.Height/4
 }
 
 func (c *Character) setDirection(dx float64, dy float64) {
@@ -231,9 +248,20 @@ func (c *Character) harvesting(mapResourceArray [][]int) {
 	}
 }
 
-func (c *Character) Update(MapResourceArray [][]int) {
+func (c *Character) Update(MapResourceArray [][]int, camera *sdl.Rect) {
 	c.move()
 	c.harvesting(MapResourceArray)
+
+	// Update the building
+	if c.building != nil {
+		characterPos := &sdl.Point{
+			X: c.Pos.X - c.GetWidth()/2 + camera.X,
+			Y: c.Pos.Y - c.GetHeight()/2 + camera.Y,
+		}
+
+		c.building.Update(characterPos, c.isMoving())
+		c.isInBuilding = c.building.IsInside(characterPos, c.isMoving())
+	}
 
 	// Update messages display
 	if c.message != nil {
@@ -250,25 +278,37 @@ func (c *Character) Render(camera *sdl.Rect) {
 	x := c.Pos.X - camera.X
 	y := c.Pos.Y - camera.Y
 
+	// Render the building
+	if c.building != nil {
+		characterPos := &sdl.Point{
+			X: x - c.GetWidth()/2,
+			Y: y - c.GetHeight()/2,
+		}
+
+		c.building.Render(c.renderer, characterPos, c.isMoving(), camera)
+	}
+
 	// Render the character
-	c.renderer.Copy(
-		c.resourceManager.GetTexture(c.CharacterInfo.ImageKey),
-		c.getCurrentTextureRect(),
-		&sdl.Rect{
-			X: x,
-			Y: y,
-			W: c.CharacterInfo.DefaultTexture.W,
-			H: c.CharacterInfo.DefaultTexture.H,
-		},
-	)
+	if !c.isInBuilding {
+		c.renderer.Copy(
+			c.resourceManager.GetTexture(c.CharacterInfo.ImageKey),
+			c.getCurrentTextureRect(),
+			&sdl.Rect{
+				X: x,
+				Y: y,
+				W: c.CharacterInfo.DefaultTexture.W,
+				H: c.CharacterInfo.DefaultTexture.H,
+			},
+		)
+	}
 
 	// Render harvesting
 	if c.isHarvesting && c.isPlayer && !c.Inventory.isResourceFull(c.resourceHarvesting) {
 		c.renderer.SetDrawColor(255, 255, 255, 255)
 		c.renderer.DrawRect(&sdl.Rect{
 			X: x,
-			Y: y - HEIGHT_RECT_HARVESTING,
-			H: HEIGHT_RECT_HARVESTING,
+			Y: y - HEIGHT_RECT_LIFE,
+			H: HEIGHT_RECT_LIFE,
 			W: c.CharacterInfo.DefaultTexture.W,
 		})
 
@@ -277,14 +317,14 @@ func (c *Character) Render(camera *sdl.Rect) {
 
 		c.renderer.FillRect(&sdl.Rect{
 			X: x,
-			Y: y - HEIGHT_RECT_HARVESTING,
-			H: HEIGHT_RECT_HARVESTING,
+			Y: y - HEIGHT_RECT_LIFE,
+			H: HEIGHT_RECT_LIFE,
 			W: int32(float64(c.CharacterInfo.DefaultTexture.W) * percentWidthHarvesting),
 		})
 	}
 
 	// Display the message
 	if c.message != nil {
-		c.message.render(x, y-HEIGHT_RECT_HARVESTING, c.GetWidth(), c.renderer)
+		c.message.render(x, y-HEIGHT_RECT_LIFE, c.GetWidth(), c.renderer)
 	}
 }
