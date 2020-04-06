@@ -30,17 +30,17 @@ func NewBuilding(resourceManager *managers.ResourceManager, buildingInfo *models
 	}
 }
 
-func (b *Building) isUserInBuilding(pos *sdl.Point) bool {
-	if pos.X >= b.Pos.X && pos.X <= b.Pos.X+b.buildingInfo.Width &&
-		pos.Y >= b.Pos.Y && pos.Y <= b.Pos.Y+b.buildingInfo.Height {
+func (b *Building) isUserInBuilding(pos *sdl.Point, camera *sdl.Rect) bool {
+	if pos.X >= b.Pos.X-camera.X && pos.X <= b.Pos.X-camera.X+b.buildingInfo.Width &&
+		pos.Y >= b.Pos.Y-camera.Y && pos.Y <= b.Pos.Y-camera.Y+b.buildingInfo.Height {
 		return true
 	}
 
 	return false
 }
 
-func (b *Building) construction(pos *sdl.Point, isPlayerMoving bool) {
-	if !b.isBuilt && b.isUserInBuilding(pos) && !isPlayerMoving {
+func (b *Building) construction(pos *sdl.Point, camera *sdl.Rect, isPlayerMoving bool) {
+	if !b.isBuilt && b.isUserInBuilding(pos, camera) && !isPlayerMoving {
 		// The player is building
 		if b.oldTime+b.frameRate > sdl.GetTicks() {
 			return
@@ -58,12 +58,12 @@ func (b *Building) construction(pos *sdl.Point, isPlayerMoving bool) {
 	}
 }
 
-func (b *Building) IsInside(pos *sdl.Point, isPlayerMoving bool) bool {
-	return b.isUserInBuilding(pos) && !isPlayerMoving && b.isBuilt
+func (b *Building) IsInside(pos *sdl.Point, camera *sdl.Rect, isPlayerMoving bool) bool {
+	return b.isUserInBuilding(pos, camera) && !isPlayerMoving && b.isBuilt
 }
 
-func (b *Building) Update(pos *sdl.Point, isPlayerMoving bool) {
-	b.construction(pos, isPlayerMoving)
+func (b *Building) Update(pos *sdl.Point, camera *sdl.Rect, isPlayerMoving bool) {
+	b.construction(pos, camera, isPlayerMoving)
 }
 
 func (b *Building) getCurrentTextureRect() *sdl.Rect {
@@ -89,7 +89,7 @@ func (b *Building) Render(renderer *sdl.Renderer, pos *sdl.Point, isPlayerMoving
 	)
 
 	// Displays the health bar
-	if !b.isBuilt && b.isUserInBuilding(pos) && !isPlayerMoving {
+	if !b.isBuilt && b.isUserInBuilding(pos, camera) && !isPlayerMoving {
 		renderer.SetDrawColor(0, 0, 0, 255)
 		renderer.DrawRect(&sdl.Rect{
 			X: b.Pos.X - camera.X,

@@ -255,12 +255,12 @@ func (c *Character) Update(MapResourceArray [][]int, camera *sdl.Rect) {
 	// Update the building
 	if c.building != nil {
 		characterPos := &sdl.Point{
-			X: c.Pos.X - c.GetWidth()/2 + camera.X,
-			Y: c.Pos.Y - c.GetHeight()/2 + camera.Y,
+			X: c.Pos.X - camera.X + c.GetWidth()/2,
+			Y: c.Pos.Y - camera.Y + c.GetHeight()/2,
 		}
 
-		c.building.Update(characterPos, c.isMoving())
-		c.isInBuilding = c.building.IsInside(characterPos, c.isMoving())
+		c.building.Update(characterPos, camera, c.isMoving())
+		c.isInBuilding = c.building.IsInside(characterPos, camera, c.isMoving())
 	}
 
 	// Update messages display
@@ -281,8 +281,8 @@ func (c *Character) Render(camera *sdl.Rect) {
 	// Render the building
 	if c.building != nil {
 		characterPos := &sdl.Point{
-			X: x - c.GetWidth()/2,
-			Y: y - c.GetHeight()/2,
+			X: x + c.GetWidth()/2,
+			Y: y + c.GetHeight()/2,
 		}
 
 		c.building.Render(c.renderer, characterPos, c.isMoving(), camera)
