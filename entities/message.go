@@ -38,7 +38,7 @@ func (m *Message) update() {
 }
 
 func (m *Message) render(x int32, y int32, width int32, renderer *sdl.Renderer) {
-	solid, err := m.font.RenderUTF8Solid(m.text, sdl.Color{255, 255, 255, 255})
+	solid, err := m.font.RenderUTF8Solid(m.text, sdl.Color{R: 255, G: 255, B: 255, A: 255})
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to render text: %s\n", err)
@@ -56,6 +56,10 @@ func (m *Message) render(x int32, y int32, width int32, renderer *sdl.Renderer) 
 	renderer.Copy(
 		texture,
 		nil,
-		&sdl.Rect{x - (solid.ClipRect.W / 2) + width/2, y - 8, solid.ClipRect.W, solid.ClipRect.H},
+		&sdl.Rect{
+			X: x - (solid.ClipRect.W / 2) + width/2,
+			Y: y - 8, W: solid.ClipRect.W,
+			H: solid.ClipRect.H,
+		},
 	)
 }

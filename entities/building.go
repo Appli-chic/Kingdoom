@@ -77,34 +77,37 @@ func (b *Building) getCurrentTextureRect() *sdl.Rect {
 }
 
 func (b *Building) Render(renderer *sdl.Renderer, pos *sdl.Point, isPlayerMoving bool, camera *sdl.Rect) {
-	renderer.Copy(
-		b.resourceManager.GetTexture(b.buildingInfo.ImageKey),
-		b.getCurrentTextureRect(),
-		&sdl.Rect{
-			X: b.Pos.X - camera.X,
-			Y: b.Pos.Y - camera.Y,
-			W: b.buildingInfo.Width,
-			H: b.buildingInfo.Height,
-		},
-	)
+	if b.Pos.X+b.getCurrentTextureRect().W > camera.X && b.Pos.Y+b.getCurrentTextureRect().H > camera.Y &&
+		b.Pos.X < camera.X+camera.W && b.Pos.Y < camera.Y+camera.H {
+		renderer.Copy(
+			b.resourceManager.GetTexture(b.buildingInfo.ImageKey),
+			b.getCurrentTextureRect(),
+			&sdl.Rect{
+				X: b.Pos.X - camera.X,
+				Y: b.Pos.Y - camera.Y,
+				W: b.buildingInfo.Width,
+				H: b.buildingInfo.Height,
+			},
+		)
 
-	// Displays the health bar
-	if !b.isBuilt && b.isUserInBuilding(pos, camera) && !isPlayerMoving {
-		renderer.SetDrawColor(0, 0, 0, 255)
-		renderer.DrawRect(&sdl.Rect{
-			X: b.Pos.X - camera.X,
-			Y: b.Pos.Y - camera.Y + b.buildingInfo.Height,
-			H: HEIGHT_RECT_LIFE,
-			W: b.buildingInfo.Width,
-		})
+		// Displays the health bar
+		if !b.isBuilt && b.isUserInBuilding(pos, camera) && !isPlayerMoving {
+			renderer.SetDrawColor(0, 0, 0, 255)
+			renderer.DrawRect(&sdl.Rect{
+				X: b.Pos.X - camera.X,
+				Y: b.Pos.Y - camera.Y + b.buildingInfo.Height,
+				H: HEIGHT_RECT_LIFE,
+				W: b.buildingInfo.Width,
+			})
 
-		percentWidthLife := float64(b.health) / float64(b.buildingInfo.Health)
+			percentWidthLife := float64(b.health) / float64(b.buildingInfo.Health)
 
-		renderer.FillRect(&sdl.Rect{
-			X: b.Pos.X - camera.X,
-			Y: b.Pos.Y - camera.Y + b.buildingInfo.Height,
-			H: HEIGHT_RECT_LIFE,
-			W: int32(float64(b.buildingInfo.Width) * percentWidthLife),
-		})
+			renderer.FillRect(&sdl.Rect{
+				X: b.Pos.X - camera.X,
+				Y: b.Pos.Y - camera.Y + b.buildingInfo.Height,
+				H: HEIGHT_RECT_LIFE,
+				W: int32(float64(b.buildingInfo.Width) * percentWidthLife),
+			})
+		}
 	}
 }

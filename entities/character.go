@@ -289,7 +289,8 @@ func (c *Character) Render(camera *sdl.Rect) {
 	}
 
 	// Render the character
-	if !c.isInBuilding {
+	if !c.isInBuilding && c.Pos.X+c.GetWidth() > camera.X && c.Pos.Y+c.GetHeight() > camera.Y &&
+		c.Pos.X < camera.X+camera.W && c.Pos.Y < camera.Y+camera.H {
 		c.renderer.Copy(
 			c.resourceManager.GetTexture(c.CharacterInfo.ImageKey),
 			c.getCurrentTextureRect(),
